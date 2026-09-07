@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="VocalGuard — a free, offline toolkit to protect your family from AI voice-clone and deepfake phone scams.">
+<title>VocalGuard — Family Deepfake & Voice-Clone Scam Protection</title>
+<style>
+  :root{
+    --bg:#0f1220;
+    --panel:#1a1f36;
+    --panel2:#232a44;
+    --ink:#e8ebff;
+    --muted:#9aa3c7;
+    --accent:#4f7cff;
+    --accent2:#35e0a1;
+    --danger:#ff5c72;
+    --warn:#ffc24f;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(79,124,255,.25), transparent 60%),
+      radial-gradient(900px 500px at 0% 100%, rgba(53,224,161,.12), transparent 60%),
+      var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.55;
+    min-height:100vh;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:28px 20px 80px}
+  header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:8px}
+  .logo{
+    width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));
+    display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;color:#0b0e1a;flex:none;
+  }
+  h1{font-size:26px;margin:0}
+  .tag{color:var(--muted);font-size:15px}
+  .privacy{display:inline-flex;align-items:center;gap:6px;background:var(--panel);border:1px solid #2c3352;padding:6px 11px;border-radius:999px;font-size:12px;color:var(--accent2);margin-left:auto}
+  nav{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 26px}
+  nav button{
+    background:var(--panel);color:var(--muted);border:1px solid #2c3352;border-radius:10px;
+    padding:9px 14px;font-size:13px;cursor:pointer;font-weight:600;transition:.15s;
+  }
+  nav button:hover{color:var(--ink);border-color:var(--accent)}
+  nav button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .card{background:var(--panel);border:1px solid #2c3352;border-radius:var(--radius);padding:22px;margin-bottom:20px}
+  .card h2{margin:0 0 6px;font-size:19px}
+  .card .sub{color:var(--muted);font-size:13px;margin:0 0 18px}
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+  button.primary{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 18px;font-size:14px;font-weight:700;cursor:pointer;transition:.15s}
+  button.primary:hover{filter:brightness(1.1)}
+  button.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent);border-radius:10px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer}
+  button.ghost:hover{background:rgba(79,124,255,.1)}
+  button.danger{background:transparent;color:var(--danger);border:1px solid var(--danger);border-radius:10px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer}
+  input[type=text],textarea,select{
+    width:100%;background:var(--panel2);color:var(--ink);border:1px solid #343c60;border-radius:10px;
+    padding:11px 13px;font-size:14px;font-family:inherit;
+  }
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
+  label{font-size:12px;color:var(--muted);display:block;margin:14px 0 5px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+  .codebox{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:34px;font-weight:800;letter-spacing:8px;
+    text-align:center;padding:22px;border-radius:12px;background:var(--panel2);border:1px dashed var(--accent);
+    color:var(--accent2);user-select:all;margin:8px 0;
+  }
+  .warnbox{background:rgba(255,194,79,.08);border:1px solid rgba(255,194,79,.4);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--warn);margin-top:14px}
+  .goodbox{background:rgba(53,224,161,.08);border:1px solid rgba(53,224,161,.4);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--accent2);margin-top:14px}
+  ul.features{list-style:none;padding:0;margin:0}
+  ul.features li{padding:10px 0;border-bottom:1px solid #232a44;font-size:14px;display:flex;gap:10px;align-items:flex-start}
+  ul.features li:last-child{border-bottom:none}
+  .step{border-left:3px solid var(--accent);padding-left:14px;margin:14px 0}
+  .step b{color:var(--accent2)}
+  .quiz-item{margin-bottom:12px}
+  .quiz-q{font-weight:600;margin-bottom:8px}
+  .quiz-opts{display:flex;flex-direction:column;gap:8px}
+  .quiz-opts button{background:var(--panel2);border:1px solid #343c60;color:var(--ink);border-radius:10px;padding:11px;font-size:14px;text-align:left;cursor:pointer}
+  .quiz-opts button:hover{border-color:var(--accent)}
+  .quiz-opts button.correct{border-color:var(--accent2);background:rgba(53,224,161,.15);color:#fff}
+  .quiz-opts button.wrong{border-color:var(--danger);background:rgba(255,92,114,.15);color:#fff}
+  .badge{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700}
+  .badge.yes{background:rgba(53,224,161,.15);color:var(--accent2)}
+  .badge.no{background:rgba(255,92,114,.15);color:var(--danger)}
+  .scenario{background:var(--panel2);border-radius:10px;padding:16px;margin-bottom:14px}
+  .scenario .chat{font-size:14px;margin-bottom:10px}
+  .scenario .chat span{display:block;padding:6px 10px;border-radius:10px;margin:4px 0;width:fit-content;max-width:90%}
+  .scenario .caller{background:rgba(255,92,114,.15);color:#ffb3be}
+  .scenario .you{background:rgba(79,124,255,.15);color:#bcd0ff;margin-left:auto}
+  .scenario .tip{font-size:12.5px;color:var(--muted);margin-top:8px}
+  .muted{color:var(--muted)}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .divider{height:1px;background:#2c3352;margin:22px 0}
+  .footer{color:var(--muted);font-size:12px;text-align:center;margin-top:40px;line-height:1.7}
+  .footer b{color:var(--ink)}
+  #printArea{display:none}
+  @media print{
+    body *{visibility:hidden}
+    #printArea,#printArea *{visibility:visible}
+    #printArea{display:block;position:absolute;left:0;top:0;width:100%;color:#000;background:#fff}
+  }
+  .kbd{font-family:monospace;background:var(--panel2);border:1px solid #343c60;border-radius:6px;padding:2px 7px}
+  .stat{text-align:center;padding:8px}
+  .stat .num{font-size:30px;font-weight:800;color:var(--accent2)}
+  .stat .lbl{font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="logo">V</div>
+    <div>
+      <h1>VocalGuard</h1>
+      <div class="tag">Protect your family from AI voice-clone &amp; deepfake phone scams</div>
+    </div>
+    <span class="privacy">&#128274; 100% offline · nothing leaves your device</span>
+  </header>
+
+  <nav>
+    <button data-tab="home" class="active">Home</button>
+    <button data-tab="codes">Safe Codes</button>
+    <button data-tab="quiz">Detection Quiz</button>
+    <button data-tab="scripts">Call Simulator</button>
+    <button data-tab="cards">Printables</button>
+  </nav>
+
+  <!-- HOME -->
+  <section id="tab-home" class="card">
+    <h2>Why you need this</h2>
+    <p class="sub">AI can clone your voice from a few seconds of audio. Scammers call families pretending to be a loved one in trouble.</p>
+    <ul class="features">
+      <li><span>&#128274;</span> <div><b>Voice cloning needs only 3 seconds</b> of any public video, voicemail, or social clip of you to create a convincing fake.</div></li>
+      <li><span>&#128264;</span> <div><b>The "grandparent scam"</b> is exploding: callers impersonate a child/grandchild asking for urgent money. AI makes the voice <i>sound exactly right</i>.</div></li>
+      <li><span>&#128100;</span> <div><b>Anyone can be targeted</b> — the young, old, everyone. The best defense has nothing to do with tech.</div></li>
+      <li><span>&#9989;</span> <div><b>Your family safe word is the fix.</b> A word only your family knows defeats any audio clone, no matter how perfect.</div></li>
+    </ul>
+    <div class="divider"></div>
+    <h2>2-minute setup</h2>
+    <div class="step"><b>Step 1 —</b> Open the <b>Safe Codes</b> tab and create your family code word.</div>
+    <div class="step"><b>Step 2 —</b> Share the code word privately with family (never by text/email/VoIP if possible — tell them in person or over a separate channel).</div>
+    <div class="step"><b>Step 3 —</b> Agree: <i>anyone</i> asking for money/help over the phone must say the code word first. No code word = no deal. Ever.</div>
+    <div class="step"><b>Step 4 —</b> Run the <b>Detection Quiz</b> with the whole family, and print <b>wallet cards &amp; posters</b> for the elders.</div>
+    <div class="goodbox">&#9889; <b>Golden rule:</b> <i>Trust the code word, not the voice or the number.</i> Numbers can be spoofed, voices can be cloned — a secret code word cannot.</div>
+  </section>
+
+  <!-- SAFE CODES -->
+  <section id="tab-codes" class="card" style="display:none">
+    <h2>Family Safe Codes</h2>
+    <p class="sub">A secret word/phrase only your family knows. Use it to confirm identity before ever discussing money, help, or bail over the phone.</p>
+
+    <div class="grid g2">
+      <div>
+        <label for="codeword">Your code word / phrase</label>
+        <input type="text" id="codeword" placeholder="e.g. BlueWhalePizza">
+        <div class="btn-row">
+          <button class="primary" id="saveCode">Save Code</button>
+          <button class="ghost" id="genCode">Generate Random</button>
+        </div>
+      </div>
+      <div>
+        <label>Current saved code</label>
+        <div class="codebox" id="currentCode">—</div>
+        <div class="muted" style="font-size:12px">Stored only in this browser. No server, no cloud.</div>
+      </div>
+    </div>
+
+    <div class="warnbox">&#9888; <b>Security tips:</b>
+      <ul style="margin:8px 0 0;padding-left:18px">
+        <li>Don't use your pet's name, birthday, or anything on social media.</li>
+        <li>Share it <b>in person</b> when possible, or via a separate verified channel.</li>
+        <li>If ANYONE over the phone refuses or can't say it — assume it's a clone, hang up, and call the real person back on a number <b>you</b> verified (look it up yourself, don't trust the caller's number).</li>
+        <li>Rotate the code occasionally, e.g. every 6 months.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="tab-quiz" class="card" style="display:none">
+    <h2>Can you spot the clone?</h2>
+    <p class="sub">Interactive detection training for the whole family. Answer honestly — there's no pressure, many people get these wrong at first.</p>
+    <div id="quizContainer"></div>
+    <div id="quizResult" class="goodbox" style="display:none"></div>
+    <div class="btn-row"><button class="ghost" id="quizRetry" style="display:none">Retry Quiz</button></div>
+  </section>
+
+  <!-- SCRIPTS -->
+  <section id="tab-scripts" class="card" style="display:none">
+    <h2>Call Simulator</h2>
+    <p class="sub">Practice responding when a "loved one in trouble" calls. Read the scenario, think about what you'd say, then reveal the safe response.</p>
+    <div id="scenarioContainer"></div>
+  </section>
+
+  <!-- PRINTABLES -->
+  <section id="tab-cards" class="card" style="display:none">
+    <h2>Printables &amp; Downloadables</h2>
+    <p class="sub">Print these for elders, post near the home phone, or send to family. One click = print-ready.</p>
+
+    <div class="card" style="background:var(--panel2)">
+      <h2 style="font-size:16px">&#128179; Wallet Card — "Grandparent's Golden Rule"</h2>
+      <p class="muted" style="font-size:13px">Print, cut out, and keep in a wallet or by the phone.</p>
+      <div class="btn-row">
+        <button class="primary" id="printWalletCard">Print / Save as PDF</button>
+      </div>
+    </div>
+
+    <div class="card" style="background:var(--panel2)">
+      <h2 style="font-size:16px">&#128214; Phone Poster — Hang by the landline</h2>
+      <p class="muted" style="font-size:13px">A 4-step reminder for when the phone rings with a call for money.</p>
+      <div class="btn-row">
+        <button class="primary" id="printPoster">Print / Save as PDF</button>
+      </div>
+    </div>
+
+    <div class="card" style="background:var(--panel2)">
+      <h2 style="font-size:16px">&#128197; Family Safety Plan (checklist)</h2>
+      <p class="muted" style="font-size:13px">A one-page plan to walk through with family members.</p>
+      <div class="btn-row">
+        <button class="primary" id="printPlan">Print / Save as PDF</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer">
+    <b>VocalGuard</b> — free, offline, open-source.<br>
+    This tool provides awareness and family procedures, not technical guarantees. Always verify identity with a code word; report scams to local authorities.<br>
+    No data is uploaded or tracked. Everything runs in your browser.
+  </div>
+
+  <!-- hidden print areas -->
+  <div id="printArea"></div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var LS_KEY='vocalguard_code';
+
+  // ---- Tabs ----
+  var tabs=document.querySelectorAll('nav button');
+  function showTab(name){
+    ['home','codes','quiz','scripts','cards'].forEach(function(t){
+      document.getElementById('tab-'+t).style.display=(t===name)?'':'none';
+    });
+    tabs.forEach(function(b){ b.classList.toggle('active', b.dataset.tab===name); });
+  }
+  tabs.forEach(function(b){ b.addEventListener('click',function(){ showTab(b.dataset.tab); }); });
+
+  // ---- Safe code ----
+  var codeInput=document.getElementById('codeword');
+  var currentCode=document.getElementById('currentCode');
+  function loadCode(){ currentCode.textContent=localStorage.getItem(LS_KEY) || '—'; }
+  function words(){
+    var a=['Blue','Red','Green','Zebra','Tiger','Walnut','Silver','Storm','Maple','Ocean','Lemon','Falcon','Velvet','Cobalt','Raven','Ivy','Amber','Comet','Rose','Pine'];
+    var b=['Harbor','Saddle','Lantern','Pocket','Rocket','Willow','Pepper','Cactus','Magnet','Breeze','Buffer','Noodle','Puzzle','Quilt','Goblin','Saffron','Tundra','Ember','Waffle','Yodel'];
+    return a[Math.floor(Math.random()*a.length)]+b[Math.floor(Math.random()*b.length)]+Math.floor(Math.random()*90+10);
+  }
+  document.getElementById('genCode').addEventListener('click',function(){
+    codeInput.value=words();
+  });
+  document.getElementById('saveCode').addEventListener('click',function(){
+    var v=codeInput.value.trim();
+    if(!v){ alert('Enter or generate a code word first.'); return; }
+    localStorage.setItem(LS_KEY,v);
+    currentCode.textContent=v;
+    codeInput.value='';
+    alert('Saved! Share this code word with family in person. Remember: trust the code word, not the voice.');
+    loadCode();
+  });
+  loadCode();
+
+  // ---- Quiz ----
+  var quiz=[
+    {q:'A caller who sounds exactly like your son says he\'s in jail and needs $2,000 wired immediately. What\'s the FIRST thing you do?',
+     opts:['Wire the money to help him fast','Ask him a question only your real son would know (like your codeword)','Argue that it can\'t be him','Call the number he\'s calling from back'],
+     correct:1,
+     why:'Voice and caller ID can both be faked. Only a fact the real person (and your family) knows proves it. Your safe code word is the fast, reliable test.'},
+    {q:'AI can clone a realistic version of your voice from how much real audio?',
+     opts:['About an hour of recordings','A few seconds','At least a day','It\'s not possible without professional equipment'],
+     correct:1,
+     why:'Modern AI can clone a convincing voice from just a few seconds — news clips, voicemails, social videos are enough.'},
+    {q:'A caller claims your grandchild is hurt and needs money "right now" but says they can\'t talk. What should you do?',
+     opts:['Act fast to avoid harm','Hang up and verify by calling the real person on a number YOU look up','Ask to transfer to the hospital yourself','Pay in installments'],
+     correct:1,
+     why:'Pressuring you to act fast is a classic scam tactic. Never decide under pressure. Hang up and verify through your own trusted channel.'},
+    {q:'The "real" family member\'s phone number shows on caller ID. Does that mean it\'s genuinely them?',
+     opts:['Yes, caller ID is secure','No, caller ID can be spoofed','Only if it\'s a mobile number','Only in the afternoon'],
+     correct:1,
+     why:'Caller ID is not proof of who is calling. Numbers are trivially spoofed. Always confirm with your safe code word.'},
+    {q:'Which is the strongest safe code word?',
+     opts:['Your dog\'s name, Bruno','Your birthday, 04121985','BlueHarborPizza','The street you grew up on'],
+     correct:2,
+     why:'Pets, birthdays, addresses, and family names are all on social media or in public records. A made-up random phrase nobody can guess or find is best.'},
+    {q:'Someone asks for money "for an emergency" but can\'t give your code word. What\'s the one safe response?',
+     opts:['Help them, they\'re panicking','Say "sorry, family rule — no code, no money" and hang up, then verify','Ask for more proof later','Give a smaller amount'],
+     correct:1,
+     why:'Stick to the rule without exception. A real relative will understand (you\'re protecting them). A scammer will get frustrated and move on.'}
+  ];
+  var qIdx=0, wrong=[];
+  var quizContainer=document.getElementById('quizContainer');
+  var quizResult=document.getElementById('quizResult');
+  var quizRetry=document.getElementById('quizRetry');
+  function renderQuiz(){
+    quizContainer.innerHTML='';
+    var item=quiz[qIdx];
+    var div=document.createElement('div'); div.className='quiz-item';
+    var q=document.createElement('div'); q.className='quiz-q'; q.textContent='('+(qIdx+1)+'/'+quiz.length+') '+item.q;
+    div.appendChild(q);
+    var opts=document.createElement('div'); opts.className='quiz-opts';
+    item.opts.forEach(function(text,i){
+      var b=document.createElement('button'); b.textContent=text;
+      b.addEventListener('click',function(){
+        if(b.classList.contains('correct')||b.classList.contains('wrong')) return;
+        if(i===item.correct){
+          b.classList.add('correct');
+          showWhy(div,'&#10003; Correct. '+item.why);
+        }else{
+          b.classList.add('wrong');
+          if(wrong.indexOf(qIdx)<0) wrong.push(qIdx);
+          opts.querySelectorAll('button')[item.correct].classList.add('correct');
+          showWhy(div,'&#10007; Not quite. '+item.why);
+        }
+        setTimeout(function(){
+          qIdx++;
+          if(qIdx>=quiz.length){ finishQuiz(); } else { renderQuiz(); }
+        },2200);
+      });
+      opts.appendChild(b);
+    });
+    div.appendChild(opts);
+    quizContainer.appendChild(div);
+  }
+  function showWhy(parent,html){
+    var old=parent.querySelector('.why');
+    if(old) old.remove();
+    var w=document.createElement('div'); w.className='why goodbox'; w.style.marginTop='10px'; w.innerHTML=html;
+    parent.appendChild(w);
+  }
+  function finishQuiz(){
+    quizContainer.innerHTML='<p style="font-size:16px">Quiz complete!</p>';
+    var score=quiz.length-wrong.length;
+    var pct=Math.round(score/quiz.length*100);
+    var msg;
+    if(pct===100) msg='&#127942; Perfect score! Your family is clone-proof.';
+    else if(pct>=75) msg='&#128077; Great job! Review the ones you missed and you\'ll be rock solid.';
+    else if(pct>=50) msg='&#129300; You\'re on your way, but a scammer on a \'trouble\' call will try to rush you. Re-read the warnings and try again.';
+    else msg='&#9888; Good thing you practiced! Read the tips carefully and retry — remember: no code word, no money, ever.';
+    quizResult.innerHTML='You answered <b>'+score+' of '+quiz.length+'</b> correctly ('+pct+'%).<br><br>'+msg;
+    quizResult.style.display='block';
+    quizRetry.style.display='';
+  }
+  quizRetry.addEventListener('click',function(){ qIdx=0; wrong=[]; quizResult.style.display='none'; quizRetry.style.display='none'; renderQuiz(); });
+  renderQuiz();
+
+  // ---- Scenarios ----
+  var scenarios=[
+    {title:'The grandchild in trouble',
+     chat:[ {who:'caller','text':'Grandma? It\'s me, Tyler. I got arrested, I\'m so scared, I need $3,000 for bail right now. Don\'t tell Mom and Dad, they\'ll kill me.'},
+            {who:'you','text':'Tyler? ... you sound a bit off. Quick — what\'s our family word?'} ],
+     tip:'Even a real Tyler would happily say the code. A clone has no idea. If they hesitate, make excuses, or hang up and try again — hang up and call Tyler on a number YOU look up.'},
+    {title:'The emergency wire',
+     chat:[ {who:'caller','text':'Dad it\'s Sarah. I\'m in the hospital abroad. It\'s urgent — can you wire money to this account? I\'ll pay you back, please hurry.'},
+            {who:'you','text':'Sarah, do you remember our code phrase? I need to hear it before anything else.'} ],
+     tip:'Real Sarah knows the phrase instantly. No phrase = stop the conversation, hang up, verify through your own trusted channel (a number you find, not one they give).'},
+    {title:'The "don\'t tell anyone" tactic',
+     chat:[ {who:'caller','text':'This is a private matter. Please don\'t tell anyone in the family about this — it will embarrass everyone. Just send the gift cards and we\'ll move on.'} ],
+     tip:'Any request to keep it secret, act fast, or use gift cards/crypto is a bright red flag. Legitimate loved ones don\'t demand secrecy about emergencies.'}
+  ];
+  var scContainer=document.getElementById('scenarioContainer');
+  scenarios.forEach(function(s){
+    var card=document.createElement('div'); card.className='scenario';
+    var h=document.createElement('div'); h.innerHTML='<b>&#128222; '+s.title+'</b>'; card.appendChild(h);
+    var chat=document.createElement('div'); chat.className='chat';
+    s.chat.forEach(function(m){
+      var span=document.createElement('span'); span.className=m.who; span.textContent=(m.who==='you'?'You: ':'Caller: ')+m.text; chat.appendChild(span);
+    });
+    card.appendChild(chat);
+    var btn=document.createElement('button'); btn.className='ghost'; btn.textContent='Reveal the safe response';
+    var tip=document.createElement('div'); tip.className='tip'; tip.style.display='none'; tip.innerHTML='&#128161; <b>Safe response:</b> '+s.tip;
+    btn.addEventListener('click',function(){ tip.style.display=tip.style.display==='none'?'block':'none'; });
+    card.appendChild(btn); card.appendChild(tip);
+    scContainer.appendChild(card);
+  });
+
+  // ---- Printables ----
+  function getCode(){ return localStorage.getItem(LS_KEY) || '(your family code word)'; }
+  function openPrint(html){
+    var p=document.getElementById('printArea');
+    p.innerHTML=html;
+    window.print();
+  }
+
+  document.getElementById('printWalletCard').addEventListener('click',function(){
+    openPrint('<div style="font-family:sans-serif;max-width:420px;margin:0;padding:24px;border:2px solid #000;border-radius:12px">'+
+      '<div style="font-size:20px;font-weight:800">Golden Rule &#128179;</div>'+
+      '<div style="font-size:12px;color:#555;margin:2px 0 12px">VocalGuard family card</div>'+
+      '<div style="font-size:14px;line-height:1.6">'+
+      '<b>If someone calls asking for money or help:</b><br>'+
+      '&#10003; First ask for our FAMILY CODE WORD.<br>'+
+      '&#10003; Our code word is: <b style="font-size:18px">'+getCode()+'</b><br>'+
+      '&#10007; No code word &#8594; NO money, ever.<br>'+
+      '&#10003; Never act fast. Hang up &amp; verify on a number you look up yourself.<br>'+
+      '&#9888; Voice &amp; phone numbers can be faked. Only the code word proves identity.</div>'+
+      '<div style="font-size:10px;color:#888;margin-top:12px">VocalGuard — free &amp; offline. Print this, cut it out, keep it safe.</div>'+
+      '</div>');
+  });
+
+  document.getElementById('printPoster').addEventListener('click',function(){
+    openPrint('<div style="font-family:sans-serif;padding:26px;border:2px solid #000;border-radius:12px">'+
+      '<div style="font-size:26px;font-weight:900;margin-bottom:6px">&#128222; PHONE PHONE RINGS = REMEMBER THIS</div>'+
+      '<div style="font-size:14px;margin-bottom:16px">Government agencies, banks, police, and family will NEVER demand urgent money by gift card, wire, or crypto. Scammers clone voices &amp; spoof numbers.</div>'+
+      '<table style="width:100%;border-collapse:collapse;font-size:16px">'+
+      '<tr><td style="padding:12px;border:1px solid #000;width:40px"><b>1</b></td><td style="padding:12px;border:1px solid #000"><b>Do not panic.</b> Urgency &amp; pressure = scam.</td></tr>'+
+      '<tr><td style="padding:12px;border:1px solid #000"><b>2</b></td><td style="padding:12px;border:1px solid #000"><b>Ask for our family code word first.</b> It is: <b style="font-size:20px">'+getCode()+'</b></td></tr>'+
+      '<tr><td style="padding:12px;border:1px solid #000"><b>3</b></td><td style="padding:12px;border:1px solid #000"><b>No code word = hang up.</b> Tell them "No code, no money."</td></tr>'+
+      '<tr><td style="padding:12px;border:1px solid #000"><b>4</b></td><td style="padding:12px;border:1px solid #000"><b>Verify yourself</b> — call the real person/number you look up. Confirm before any money.</td></tr>'+
+      '</table>'+
+      '<div style="font-size:12px;color:#555;margin-top:14px">Never pay by gift card, wire transfer, or cryptocurrency for an "emergency." When in doubt, hang up and tell a trusted family member.</div>'+
+      '</div>');
+  });
+
+  document.getElementById('printPlan').addEventListener('click',function(){
+    openPrint('<div style="font-family:sans-serif;padding:26px;border:2px solid #000;border-radius:12px">'+
+      '<div style="font-size:24px;font-weight:900">Family Safety Plan &#128197;</div>'+
+      '<div style="font-size:13px;color:#555;margin:2px 0 14px">Walk through this together and tick each box.</div>'+
+      '<div style="font-size:15px;line-height:2">'+
+      '&#9744; Chose and shared a family code word: <b style="border-bottom:1px dotted #000">'+getCode()+'</b><br>'+
+      '&#9744; Agreed: no code word &#8594; no money, no matter what.<br>'+
+      '&#9744; Everyone passed the VocalGuard Detection Quiz.<br>'+
+      '&#9744; Elders have a printed wallet card AND a poster by the phone.<br>'+
+      '&#9744; Agreed to never act fast — always verify on our own.<br>'+
+      '&#9744; Agreed: never pay for "emergencies" by gift card, wire, or crypto.<br>'+
+      '&#9744; Set a reminder to rotate the code word every 6 months.<br>'+
+      '&#9744; Know how to report scams: local police + national fraud line.<br>'+
+      '</div>'+
+      '<div style="font-size:12px;color:#555;margin-top:12px">Signed by the family on: ____________</div></div>');
+  });
+
+  // Guard: prevent any nav leaving offline file
+  document.addEventListener('click',function(e){
+    var a=e.target.closest('a');
+    if(a && a.target!=='_blank'){ e.preventDefault(); window.open(a.href,'_blank'); }
+  });
+
+  // open Home by default
+  showTab('home');
+})();
+</script>
+</body>
+</html>

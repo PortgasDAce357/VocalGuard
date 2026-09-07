@@ -1,0 +1,5 @@
+# Dependencies (none — but if you commit optional tooling):
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
