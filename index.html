@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="VocalGuard — a free, offline toolkit to protect your family from AI voice-clone and deepfake phone scams.">
+<meta name="vocalguard-hash" content="c50163407df323849d98bdb83142be3caa55bf6fdda777f61d6b485518f211e0">
 <title>VocalGuard — Family Deepfake & Voice-Clone Scam Protection</title>
 <style>
   :root{
@@ -57,7 +58,7 @@
   button.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent);border-radius:10px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer}
   button.ghost:hover{background:rgba(79,124,255,.1)}
   button.danger{background:transparent;color:var(--danger);border:1px solid var(--danger);border-radius:10px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer}
-  input[type=text],textarea,select{
+  input[type=text],input[type=password],textarea,select{
     width:100%;background:var(--panel2);color:var(--ink);border:1px solid #343c60;border-radius:10px;
     padding:11px 13px;font-size:14px;font-family:inherit;
   }
@@ -70,6 +71,7 @@
   }
   .warnbox{background:rgba(255,194,79,.08);border:1px solid rgba(255,194,79,.4);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--warn);margin-top:14px}
   .goodbox{background:rgba(53,224,161,.08);border:1px solid rgba(53,224,161,.4);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--accent2);margin-top:14px}
+  .dangerbox{background:rgba(255,92,114,.08);border:1px solid rgba(255,92,114,.5);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--danger);margin-top:14px}
   ul.features{list-style:none;padding:0;margin:0}
   ul.features li{padding:10px 0;border-bottom:1px solid #232a44;font-size:14px;display:flex;gap:10px;align-items:flex-start}
   ul.features li:last-child{border-bottom:none}
@@ -83,8 +85,11 @@
   .quiz-opts button.correct{border-color:var(--accent2);background:rgba(53,224,161,.15);color:#fff}
   .quiz-opts button.wrong{border-color:var(--danger);background:rgba(255,92,114,.15);color:#fff}
   .badge{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700}
-  .badge.yes{background:rgba(53,224,161,.15);color:var(--accent2)}
+  .badge.ok{background:rgba(53,224,161,.15);color:var(--accent2)}
   .badge.no{background:rgba(255,92,114,.15);color:var(--danger)}
+  .badge.warn{background:rgba(255,194,79,.15);color:var(--warn)}
+  .meter{height:8px;border-radius:99px;background:#2c3352;overflow:hidden;margin-top:8px}
+  .meter > div{height:100%;width:0%;border-radius:99px;transition:width .25s, background .25s}
   .scenario{background:var(--panel2);border-radius:10px;padding:16px;margin-bottom:14px}
   .scenario .chat{font-size:14px;margin-bottom:10px}
   .scenario .chat span{display:block;padding:6px 10px;border-radius:10px;margin:4px 0;width:fit-content;max-width:90%}
@@ -96,16 +101,25 @@
   .divider{height:1px;background:#2c3352;margin:22px 0}
   .footer{color:var(--muted);font-size:12px;text-align:center;margin-top:40px;line-height:1.7}
   .footer b{color:var(--ink)}
+  .chip{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;font-size:12.5px;font-weight:600;border:1px solid #2c3352}
+  .chip.ok{color:var(--accent2);border-color:rgba(53,224,161,.4)}
+  .chip.bad{color:var(--danger);border-color:rgba(255,92,114,.5)}
+  .chip.unk{color:var(--warn);border-color:rgba(255,194,79,.4)}
+  .inline{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
   #printArea{display:none}
   @media print{
     body *{visibility:hidden}
     #printArea,#printArea *{visibility:visible}
     #printArea{display:block;position:absolute;left:0;top:0;width:100%;color:#000;background:#fff}
   }
-  .kbd{font-family:monospace;background:var(--panel2);border:1px solid #343c60;border-radius:6px;padding:2px 7px}
   .stat{text-align:center;padding:8px}
   .stat .num{font-size:30px;font-weight:800;color:var(--accent2)}
   .stat .lbl{font-size:12px;color:var(--muted)}
+  @media (max-width:600px){
+    .privacy{margin-left:0}
+    h1{font-size:22px}
+    .codebox{font-size:26px;letter-spacing:5px}
+  }
 </style>
 </head>
 <body>
@@ -117,7 +131,7 @@
       <h1>VocalGuard</h1>
       <div class="tag">Protect your family from AI voice-clone &amp; deepfake phone scams</div>
     </div>
-    <span class="privacy">&#128274; 100% offline · nothing leaves your device</span>
+    <span class="privacy">&#128274; 100% offline · encrypted storage</span>
   </header>
 
   <nav>
@@ -128,10 +142,17 @@
     <button data-tab="cards">Printables</button>
   </nav>
 
+  <div class="card" style="margin-top:-12px">
+    <div class="inline">
+      <span class="chip" id="integrityChip"><span id="integrityStatus">Checking this copy…</span></span>
+      <span class="chip ok" id="storageChip">&#128274; Code storage: encrypted</span>
+    </div>
+  </div>
+
   <!-- HOME -->
   <section id="tab-home" class="card">
     <h2>Why you need this</h2>
-    <p class="sub">AI can clone your voice from a few seconds of audio. Scammers call families pretending to be a loved one in trouble.</p>
+    <p class="sub">AI can clone your voice from just a few seconds of audio. Scammers call families pretending to be a loved one in trouble.</p>
     <ul class="features">
       <li><span>&#128274;</span> <div><b>Voice cloning needs only 3 seconds</b> of any public video, voicemail, or social clip of you to create a convincing fake.</div></li>
       <li><span>&#128264;</span> <div><b>The "grandparent scam"</b> is exploding: callers impersonate a child/grandchild asking for urgent money. AI makes the voice <i>sound exactly right</i>.</div></li>
@@ -155,16 +176,27 @@
     <div class="grid g2">
       <div>
         <label for="codeword">Your code word / phrase</label>
-        <input type="text" id="codeword" placeholder="e.g. BlueWhalePizza">
+        <input type="text" id="codeword" placeholder="e.g. BlueWhalePizza" autocomplete="off">
+        <div class="meter"><div id="strengthBar"></div></div>
+        <div class="muted" id="strengthLabel" style="font-size:12px;margin-top:6px">Enter a code word to see its strength.</div>
+        <div class="warnbox" id="strengthWarn" style="display:none;font-size:12.5px;margin-top:8px"></div>
+
+        <label for="passphrase" style="margin-top:18px">Master passphrase <span class="muted" style="text-transform:none;letter-spacing:0">(encrypts the code word on this device)</span></label>
+        <input type="password" id="passphrase" placeholder="e.g. two-words-you-remember-79" autocomplete="off">
+        <div class="muted" style="font-size:12px;margin-top:5px">If set, your code word is stored <b>encrypted</b> (AES-GCM, PBKDF2). This passphrase is never stored anywhere — lose it and the code can't be recovered.</div>
+
         <div class="btn-row">
           <button class="primary" id="saveCode">Save Code</button>
           <button class="ghost" id="genCode">Generate Random</button>
+          <button class="ghost" id="toggleShow">Show / Hide</button>
         </div>
       </div>
       <div>
         <label>Current saved code</label>
         <div class="codebox" id="currentCode">—</div>
         <div class="muted" style="font-size:12px">Stored only in this browser. No server, no cloud.</div>
+        <div id="rotationInfo" style="margin-top:12px"></div>
+        <div id="storageState" style="margin-top:12px"></div>
       </div>
     </div>
 
@@ -173,7 +205,7 @@
         <li>Don't use your pet's name, birthday, or anything on social media.</li>
         <li>Share it <b>in person</b> when possible, or via a separate verified channel.</li>
         <li>If ANYONE over the phone refuses or can't say it — assume it's a clone, hang up, and call the real person back on a number <b>you</b> verified (look it up yourself, don't trust the caller's number).</li>
-        <li>Rotate the code occasionally, e.g. every 6 months.</li>
+        <li>Rotate the code at least every 6 months. This app reminds you automatically.</li>
       </ul>
     </div>
   </section>
@@ -237,9 +269,11 @@
 <script>
 (function(){
   'use strict';
-  var LS_KEY='vocalguard_code';
+  var LS_KEYS={ code:'vocalguard_code', meta:'vocalguard_code_meta' };
+  var enc = new TextEncoder();
+  var dec = new TextDecoder();
 
-  // ---- Tabs ----
+  // ---------- tabs ----------
   var tabs=document.querySelectorAll('nav button');
   function showTab(name){
     ['home','codes','quiz','scripts','cards'].forEach(function(t){
@@ -249,30 +283,223 @@
   }
   tabs.forEach(function(b){ b.addEventListener('click',function(){ showTab(b.dataset.tab); }); });
 
-  // ---- Safe code ----
-  var codeInput=document.getElementById('codeword');
-  var currentCode=document.getElementById('currentCode');
-  function loadCode(){ currentCode.textContent=localStorage.getItem(LS_KEY) || '—'; }
+  // ---------- shared helpers ----------
+  function b64encode(bytes){ var s='';bytes.forEach(function(b){s+=String.fromCharCode(b);});return btoa(s); }
+  function b64decode(str){ var s=atob(str),out=new Uint8Array(s.length);for(var i=0;i<s.length;i++){out[i]=s.charCodeAt(i);}return out; }
+  function toHex(buf){
+    var a=new Uint8Array(buf), out='';
+    for(var i=0;i<a.length;i++){ out+=a[i].toString(16).padStart(2,'0'); }
+    return out;
+  }
+  function fmtDate(ts){ return new Date(ts).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}); }
+  function monthsSince(ts){ return (Date.now()-ts)/ (1000*60*60*24*30.44); }
+
+  // ---------- integrity / tamper check ----------
+  var expectedHash = (document.querySelector('meta[name="vocalguard-hash"]')||{}).content || '';
+  function setIntegrity(mode,msg){
+    var chip=document.getElementById('integrityChip');
+    chip.className='chip '+mode;
+    document.getElementById('integrityStatus').textContent=msg;
+  }
+  function runTamperCheck(){
+    if(!expectedHash || expectedHash.indexOf('__VOCALGUARD')===0){
+      setIntegrity('unk','This copy is a developer build (hash not embedded).');
+      return;
+    }
+    function blankHash(text){
+      var marker='vocalguard-hash" content="';
+      var idx=text.indexOf(marker);
+      if(idx<0) return null;
+      var start=idx+marker.length;
+      var chars=text.split('');
+      for(var i=start;i<start+64 && i<chars.length;i++){ chars[i]='0'; }
+      return chars.join('');
+    }
+    function done(ok){ setIntegrity(ok?'ok':'bad', ok? 'This copy is verified authentic.':'WARNING: this copy has been modified.'); }
+    function failOffline(){ setIntegrity('unk','Could not verify offline. Open it as a website to check authenticity.'); }
+    if(!window.fetch){ failOffline(); return; }
+    fetch(location.href,{cache:'no-store'}).then(function(r){
+      if(!r.ok){ failOffline(); return; }
+      return r.text();
+    }).then(function(text){
+      if(!text) return;
+      var blanked=blankHash(text);
+      if(!blanked){ setIntegrity('unk','Could not locate integrity marker.'); return; }
+      return crypto.subtle.digest('SHA-256', new TextEncoder().encode(blanked));
+    }).then(function(digest){
+      if(digest) done(toHex(digest)===expectedHash.toLowerCase());
+    }).catch(failOffline);
+  }
+
+  // ---------- encryption ----------
+  function deriveKey(passphrase,salt,rounds){
+    return crypto.subtle.importKey('raw', enc.encode(passphrase), 'PBKDF2', false, ['deriveKey'])
+      .then(function(k){
+        return crypto.subtle.deriveKey(
+          {name:'PBKDF2', salt:salt, iterations:rounds, hash:'SHA-256'},
+          k, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']
+        );
+      });
+  }
+  function encryptCode(code,passphrase){
+    var salt=crypto.getRandomValues(new Uint8Array(16));
+    var iv=crypto.getRandomValues(new Uint8Array(12));
+    var rounds=150000;
+    return deriveKey(passphrase,salt,rounds).then(function(key){
+      return crypto.subtle.encrypt({name:'AES-GCM', iv:iv}, key, enc.encode('vg1:'+code));
+    }).then(function(ct){
+      return { ver:1, algo:'aes-256-gcm', kdf:'pbkdf2-sha256', rounds:rounds, salt:b64encode(salt), iv:b64encode(iv), ct:b64encode(new Uint8Array(ct)) };
+    });
+  }
+  function decryptCode(record,passphrase){
+    var salt=b64decode(record.salt), iv=b64decode(record.iv);
+    return deriveKey(passphrase,salt,record.rounds).then(function(key){
+      return crypto.subtle.decrypt({name:'AES-GCM', iv:iv}, key, b64decode(record.ct));
+    }).then(function(pt){
+      var s=dec.decode(pt);
+      if(s.indexOf('vg1:')!==0){ throw new Error('bad data'); }
+      return s.slice(4);
+    });
+  }
+  function isEncrypted(){ var r=localStorage.getItem(LS_KEYS.code); return r && r.charAt(0)==='{'; }
+
+  // ---------- code storage ----------
+  var currentCodeEl=document.getElementById('currentCode');
+  function loadCode(show){
+    show = show===undefined ? (document.getElementById('toggleShow').dataset.on==='1') : show;
+    if(isEncrypted()){
+      currentCodeEl.innerHTML = '&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;';
+      var pw=document.getElementById('passphrase').value;
+      if(pw && show && window.__vgPlain){
+        currentCodeEl.textContent=window.__vgPlain;
+      }
+      else if(pw){
+        tryDecrypt(pw,show);
+      }
+      return;
+    }
+    var c=localStorage.getItem(LS_KEYS.code);
+    currentCodeEl.textContent = (c && show) ? c : (c ? '••••••' : '—');
+  }
+  function tryDecrypt(pw,show){
+    var stored=localStorage.getItem(LS_KEYS.code);
+    var rec=null; try{ rec=JSON.parse(stored); }catch(e){ return; }
+    decryptCode(rec,pw).then(function(plain){
+      window.__vgPlain=plain;
+      if(show) currentCodeEl.textContent=plain;
+      var st=document.getElementById('storageState');
+      st.innerHTML='<span class="badge ok">&#128274; Code unlocked with passphrase</span>';
+    }).catch(function(){
+      var st=document.getElementById('storageState');
+      st.innerHTML='<span class="badge no">&#9888; Wrong passphrase — check and try again.</span>';
+    });
+  }
+  function renderStorageState(){
+    var el=document.getElementById('storageState');
+    var html='';
+    if(isEncrypted()){
+      html='<span class="badge ok">&#128274; Stored encrypted (AES-256-GCM)</span>';
+    } else if(localStorage.getItem(LS_KEYS.code)){
+      html='<span class="badge warn">&#9888; Stored as plain text — add a passphrase and re-save to encrypt.</span>';
+    } else {
+      html='<span class="muted">No code word saved yet.</span>';
+    }
+    el.innerHTML=html;
+  }
+  function renderRotation(){
+    var el=document.getElementById('rotationInfo');
+    var m=localStorage.getItem(LS_KEYS.meta);
+    if(!m){ el.innerHTML=''; return; }
+    try{ m=JSON.parse(m); }catch(e){ el.innerHTML=''; return; }
+    var t=m.rotatedAt||m.createdAt; if(!t){ el.innerHTML=''; return; }
+    var ms=monthsSince(t);
+    if(ms>=6){ el.innerHTML='<div class="dangerbox">&#9888; Code was last set <b>'+fmtDate(t)+'</b> ('+Math.floor(ms)+' months ago). <b>Time to rotate it!</b></div>'; }
+    else if(ms>=4){ el.innerHTML='<div class="warnbox">&#9201;&#65039; Code set '+fmtDate(t)+' — consider rotating soon (&gt;6 months overdue).</div>'; }
+    else { el.innerHTML='<div class="muted" style="font-size:12.5px">&#128197; Code last set '+fmtDate(t)+' — rotate it every 6 months.</div>'; }
+  }
+  function refreshCodeUI(){
+    var show=(document.getElementById('toggleShow').dataset.on==='1');
+    loadCode(show);
+    renderStorageState();
+    renderRotation();
+  }
+
+  document.getElementById('toggleShow').addEventListener('click',function(){
+    var el=this;
+    el.dataset.on=(el.dataset.on==='1')?'0':'1';
+    loadCode(el.dataset.on==='1');
+    refreshCodeUI();
+  });
+  document.getElementById('passphrase').addEventListener('input',function(){ window.__vgPlain=null; refreshCodeUI(); });
+
+  document.getElementById('saveCode').addEventListener('click',function(){
+    var v=document.getElementById('codeword').value.trim();
+    if(!v){ alert('Enter or generate a code word first.'); return; }
+    var pw=document.getElementById('passphrase').value;
+    var meta=JSON.stringify({ createdAt:Date.now(), rotatedAt:Date.now() });
+    function finish(save){
+      localStorage.setItem(LS_KEYS.code, save);
+      localStorage.setItem(LS_KEYS.meta, meta);
+      refreshCodeUI();
+      alert(pw ? 'Saved & encrypted.' : 'Saved. Sharing tip: tell family in person — trust the code word, not the voice.');
+    }
+    if(pw){
+      encryptCode(v,pw).then(function(rec){
+        finish(JSON.stringify(rec));
+        window.__vgPlain=v;
+        document.getElementById('passphrase').value=pw;
+      });
+    } else {
+      finish(v);
+    }
+  });
+
+  // ---------- generator ----------
   function words(){
     var a=['Blue','Red','Green','Zebra','Tiger','Walnut','Silver','Storm','Maple','Ocean','Lemon','Falcon','Velvet','Cobalt','Raven','Ivy','Amber','Comet','Rose','Pine'];
     var b=['Harbor','Saddle','Lantern','Pocket','Rocket','Willow','Pepper','Cactus','Magnet','Breeze','Buffer','Noodle','Puzzle','Quilt','Goblin','Saffron','Tundra','Ember','Waffle','Yodel'];
     return a[Math.floor(Math.random()*a.length)]+b[Math.floor(Math.random()*b.length)]+Math.floor(Math.random()*90+10);
   }
   document.getElementById('genCode').addEventListener('click',function(){
-    codeInput.value=words();
+    document.getElementById('codeword').value=words();
+    updateStrength();
   });
-  document.getElementById('saveCode').addEventListener('click',function(){
-    var v=codeInput.value.trim();
-    if(!v){ alert('Enter or generate a code word first.'); return; }
-    localStorage.setItem(LS_KEY,v);
-    currentCode.textContent=v;
-    codeInput.value='';
-    alert('Saved! Share this code word with family in person. Remember: trust the code word, not the voice.');
-    loadCode();
-  });
-  loadCode();
 
-  // ---- Quiz ----
+  // ---------- strength meter ----------
+  var COMMON=/(password|qwerty|123456|admin|letmein|iloveyou|dragon|monkey)/i;
+  var PERSONAL=/\b(blueharborpizza|silveryodel|cobaltsaffron)\b/i;
+  function strengthScore(v){
+    if(!v) return 0;
+    var s=1;
+    s+=Math.min(2, v.length/5);                 // length
+    if(/[a-z]/.test(v)&&/[A-Z]/.test(v)) s+=1;   // case mix
+    if(/[0-9]/.test(v)) s+=1;                    // digit
+    if(/[^A-Za-z0-9]/.test(v)) s+=1;             // symbol
+    if(v.length>=12) s+=1;
+    if(/([a-zA-Z])\1\1/.test(v)) s-=2;           // repeats
+    if(COMMON.test(v)) s-=3;
+    if(PERSONAL.test(v)) s-=1;
+    var setSize=95, ent=Math.log2(Math.pow(setSize,v.length));
+    if(ent<28) s-=2; else if(ent<40) s-=1; else if(ent>=60) s+=1;
+    return Math.max(0,Math.min(10,Math.round(s)));
+  }
+  function updateStrength(){
+    var v=document.getElementById('codeword').value;
+    var score=strengthScore(v);
+    if(!v){ document.getElementById('strengthBar').style.width='0%'; document.getElementById('strengthBar').style.background='#2c3352'; document.getElementById('strengthLabel').textContent='Enter a code word to see its strength.'; document.getElementById('strengthWarn').style.display='none'; return; }
+    var pct=score*10;
+    var color= score>=8?'#35e0a1' : score>=5?'#ffc24f' : '#ff5c72';
+    var word= score>=8?'Very strong' : score>=6?'Strong' : score>=4?'Okay' : 'Weak';
+    document.getElementById('strengthBar').style.width=pct+'%';
+    document.getElementById('strengthBar').style.background=color;
+    document.getElementById('strengthLabel').textContent=word+' · score '+score+'/10'+(score>=8?' — great, hard to guess.':score>=4?' — usable, but consider longer/random.':' — a scammer or family member might guess it.');
+    var w=document.getElementById('strengthWarn');
+    if(COMMON.test(v)&&v.length<10){ w.style.display=''; w.textContent='&#9888; Contains a common, easily-guessable word. Mix in random words + numbers + symbols.'; }
+    else{ w.style.display='none'; }
+  }
+  document.getElementById('codeword').addEventListener('input',updateStrength);
+
+  // ---------- quiz ----------
   var quiz=[
     {q:'A caller who sounds exactly like your son says he\'s in jail and needs $2,000 wired immediately. What\'s the FIRST thing you do?',
      opts:['Wire the money to help him fast','Ask him a question only your real son would know (like your codeword)','Argue that it can\'t be him','Call the number he\'s calling from back'],
@@ -297,7 +524,23 @@
     {q:'Someone asks for money "for an emergency" but can\'t give your code word. What\'s the one safe response?',
      opts:['Help them, they\'re panicking','Say "sorry, family rule — no code, no money" and hang up, then verify','Ask for more proof later','Give a smaller amount'],
      correct:1,
-     why:'Stick to the rule without exception. A real relative will understand (you\'re protecting them). A scammer will get frustrated and move on.'}
+     why:'Stick to the rule without exception. A real relative will understand (you\'re protecting them). A scammer will get frustrated and move on.'},
+    {q:'Your family code word was accidentally mentioned in a group chat. What should you do?',
+     opts:['Keep using it, it\'s been fine so far','Rotate to a fresh code word immediately','Only use it after dark','Post it publicly so scammers leave you alone'],
+     correct:1,
+     why:'Once a code word leaks, it is worthless — maybe even dangerous (scammers could now use it to fool YOU). Rotate to a new one and re-share privately.'},
+    {q:'A "bank" calls asking you to confirm your identity for a "security check". What do you use?',
+     opts:['Your bank PIN','Your family code word','Actually, call your bank back on the number on your card to verify','Whatever they ask for'],
+     correct:2,
+     why:'Never give PINs, passwords, or OTPs to inbound callers. Independently verify the caller before any request. Your family code word is only for family, not for financial institutions.'},
+    {q:'The scammer says the "police" are on the line and your grandchild will be arrested if you don\'t pay. What\'s true?',
+     opts:['Police take bail over the phone','Police never demand bail, gift cards, or crypto by phone','It\'s fine if the "officer" has a badge number','You should pay to be safe'],
+     correct:1,
+     why:'Law enforcement and courts never call demanding immediate payment by gift card or crypto. Any badge number you\'re given is fake and checkable — hang up and call law enforcement via the official number.'},
+    {q:'What is the single best way to verify a family member over the phone?',
+     opts:['The voice sounds exactly right','The caller ID matches','Your private family code word','They know what you had for breakfast'],
+     correct:2,
+     why:'Voices and numbers can be cloned and spoofed. A private code word is the only reliable in-call proof. Breakfast is public knowledge if you post it. Trust the code word.'}
   ];
   var qIdx=0, wrong=[];
   var quizContainer=document.getElementById('quizContainer');
@@ -355,7 +598,7 @@
   quizRetry.addEventListener('click',function(){ qIdx=0; wrong=[]; quizResult.style.display='none'; quizRetry.style.display='none'; renderQuiz(); });
   renderQuiz();
 
-  // ---- Scenarios ----
+  // ---------- scenarios ----------
   var scenarios=[
     {title:'The grandchild in trouble',
      chat:[ {who:'caller','text':'Grandma? It\'s me, Tyler. I got arrested, I\'m so scared, I need $3,000 for bail right now. Don\'t tell Mom and Dad, they\'ll kill me.'},
@@ -367,7 +610,16 @@
      tip:'Real Sarah knows the phrase instantly. No phrase = stop the conversation, hang up, verify through your own trusted channel (a number you find, not one they give).'},
     {title:'The "don\'t tell anyone" tactic',
      chat:[ {who:'caller','text':'This is a private matter. Please don\'t tell anyone in the family about this — it will embarrass everyone. Just send the gift cards and we\'ll move on.'} ],
-     tip:'Any request to keep it secret, act fast, or use gift cards/crypto is a bright red flag. Legitimate loved ones don\'t demand secrecy about emergencies.'}
+     tip:'Any request to keep it secret, act fast, or use gift cards/crypto is a bright red flag. Legitimate loved ones don\'t demand secrecy about emergencies.'},
+    {title:'The "office of the sheriff" callback',
+     chat:[ {who:'caller','text':'This is Deputy Miller from the County Sheriff\'s office. Your grandson caused a crash. We need settlement money now or there\'s a warrant.'} ],
+     tip:'Real deputies don\'t demand crypto/gift cards for bail. Get their name + agency, hang up, call the agency yourself using their published (non-caller-ID) number, and confirm.'},
+    {title:'The "text first, call after" setup',
+     chat:[ {who:'caller','text':'Mom, it\'s Jake. I changed my number — save this one. I\'m in trouble, call me right back, don\'t call my old number, it\'s broken.'} ],
+     tip:'Scammers "move" you to a new unreachable number so you can\'t verify. Don\'t use the new number. Look up Jake\'s old / known number yourself and call it.'},
+    {title:'The tech-support "voucher"',
+     chat:[ {who:'caller','text':'This is Microsoft support — your computer has a virus right now. Tell me your banking details and we\'ll fix it with a voucher before it\'s too late.'} ],
+     tip:'Legitimate companies never call out of the blue to "fix" things and never ask for banking details, one-time codes, or gift cards. Hang up, don\'t call back the number shown, and update your own security on their official site.'}
   ];
   var scContainer=document.getElementById('scenarioContainer');
   scenarios.forEach(function(s){
@@ -385,8 +637,14 @@
     scContainer.appendChild(card);
   });
 
-  // ---- Printables ----
-  function getCode(){ return localStorage.getItem(LS_KEY) || '(your family code word)'; }
+  // ---------- printables ----------
+  function getDisplayCode(){
+    // prefer decrypted plain if we have it, else stored value; never show encrypted blob
+    if(window.__vgPlain) return window.__vgPlain;
+    var raw=localStorage.getItem(LS_KEYS.code);
+    if(raw && raw.charAt(0) !== '{') return raw;
+    return '(your family code word)';
+  }
   function openPrint(html){
     var p=document.getElementById('printArea');
     p.innerHTML=html;
@@ -400,7 +658,7 @@
       '<div style="font-size:14px;line-height:1.6">'+
       '<b>If someone calls asking for money or help:</b><br>'+
       '&#10003; First ask for our FAMILY CODE WORD.<br>'+
-      '&#10003; Our code word is: <b style="font-size:18px">'+getCode()+'</b><br>'+
+      '&#10003; Our code word is: <b style="font-size:18px">'+getDisplayCode()+'</b><br>'+
       '&#10007; No code word &#8594; NO money, ever.<br>'+
       '&#10003; Never act fast. Hang up &amp; verify on a number you look up yourself.<br>'+
       '&#9888; Voice &amp; phone numbers can be faked. Only the code word proves identity.</div>'+
@@ -410,11 +668,11 @@
 
   document.getElementById('printPoster').addEventListener('click',function(){
     openPrint('<div style="font-family:sans-serif;padding:26px;border:2px solid #000;border-radius:12px">'+
-      '<div style="font-size:26px;font-weight:900;margin-bottom:6px">&#128222; PHONE PHONE RINGS = REMEMBER THIS</div>'+
+      '<div style="font-size:26px;font-weight:900;margin-bottom:6px">&#128222; PHONE RINGS = REMEMBER THIS</div>'+
       '<div style="font-size:14px;margin-bottom:16px">Government agencies, banks, police, and family will NEVER demand urgent money by gift card, wire, or crypto. Scammers clone voices &amp; spoof numbers.</div>'+
       '<table style="width:100%;border-collapse:collapse;font-size:16px">'+
       '<tr><td style="padding:12px;border:1px solid #000;width:40px"><b>1</b></td><td style="padding:12px;border:1px solid #000"><b>Do not panic.</b> Urgency &amp; pressure = scam.</td></tr>'+
-      '<tr><td style="padding:12px;border:1px solid #000"><b>2</b></td><td style="padding:12px;border:1px solid #000"><b>Ask for our family code word first.</b> It is: <b style="font-size:20px">'+getCode()+'</b></td></tr>'+
+      '<tr><td style="padding:12px;border:1px solid #000"><b>2</b></td><td style="padding:12px;border:1px solid #000"><b>Ask for our family code word first.</b> It is: <b style="font-size:20px">'+getDisplayCode()+'</b></td></tr>'+
       '<tr><td style="padding:12px;border:1px solid #000"><b>3</b></td><td style="padding:12px;border:1px solid #000"><b>No code word = hang up.</b> Tell them "No code, no money."</td></tr>'+
       '<tr><td style="padding:12px;border:1px solid #000"><b>4</b></td><td style="padding:12px;border:1px solid #000"><b>Verify yourself</b> — call the real person/number you look up. Confirm before any money.</td></tr>'+
       '</table>'+
@@ -427,7 +685,7 @@
       '<div style="font-size:24px;font-weight:900">Family Safety Plan &#128197;</div>'+
       '<div style="font-size:13px;color:#555;margin:2px 0 14px">Walk through this together and tick each box.</div>'+
       '<div style="font-size:15px;line-height:2">'+
-      '&#9744; Chose and shared a family code word: <b style="border-bottom:1px dotted #000">'+getCode()+'</b><br>'+
+      '&#9744; Chose and shared a family code word: <b style="border-bottom:1px dotted #000">'+getDisplayCode()+'</b><br>'+
       '&#9744; Agreed: no code word &#8594; no money, no matter what.<br>'+
       '&#9744; Everyone passed the VocalGuard Detection Quiz.<br>'+
       '&#9744; Elders have a printed wallet card AND a poster by the phone.<br>'+
@@ -439,13 +697,17 @@
       '<div style="font-size:12px;color:#555;margin-top:12px">Signed by the family on: ____________</div></div>');
   });
 
+  // ---------- init ----------
+  refreshCodeUI();
+  updateStrength();
+  runTamperCheck();
+
   // Guard: prevent any nav leaving offline file
   document.addEventListener('click',function(e){
     var a=e.target.closest('a');
     if(a && a.target!=='_blank'){ e.preventDefault(); window.open(a.href,'_blank'); }
   });
 
-  // open Home by default
   showTab('home');
 })();
 </script>
