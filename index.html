@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="VocalGuard — a free, offline toolkit to protect your family from AI voice-clone and deepfake phone scams.">
-<meta name="vocalguard-hash" content="c50163407df323849d98bdb83142be3caa55bf6fdda777f61d6b485518f211e0">
+<meta name="vocalguard-hash" content="be80de8e5e13019be01abda4560b7ae3b733c8d036d8bb71e201f5c46d923467">
 <title>VocalGuard — Family Deepfake & Voice-Clone Scam Protection</title>
 <style>
   :root{
@@ -58,6 +58,7 @@
   button.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent);border-radius:10px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer}
   button.ghost:hover{background:rgba(79,124,255,.1)}
   button.danger{background:transparent;color:var(--danger);border:1px solid var(--danger);border-radius:10px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer}
+  button.danger:hover{background:rgba(255,92,114,.1)}
   input[type=text],input[type=password],textarea,select{
     width:100%;background:var(--panel2);color:var(--ink);border:1px solid #343c60;border-radius:10px;
     padding:11px 13px;font-size:14px;font-family:inherit;
@@ -120,6 +121,20 @@
     h1{font-size:22px}
     .codebox{font-size:26px;letter-spacing:5px}
   }
+
+  .codes-list{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+  .code-card{background:var(--panel2);border:1px solid #343c60;border-radius:12px;padding:16px}
+  .code-card-header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .code-card-name{font-weight:700;font-size:16px}
+  .code-card-actions{display:flex;gap:6px;flex-wrap:wrap}
+  .code-card-actions button{background:transparent;border:1px solid #343c60;color:var(--muted);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s}
+  .code-card-actions button:hover{color:var(--ink);border-color:var(--accent)}
+  .code-card-actions button.danger:hover{color:var(--danger);border-color:var(--danger)}
+  .code-card-value{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:22px;font-weight:800;letter-spacing:4px;color:var(--accent2);margin:12px 0 4px;text-align:center;user-select:all}
+  .code-card-meta{font-size:11px;color:var(--muted);text-align:center}
+  .code-card-rotation{margin-top:10px}
+  .empty-state{text-align:center;padding:30px 20px;color:var(--muted);font-size:14px}
+  .empty-state .icon{font-size:40px;margin-bottom:10px}
 </style>
 </head>
 <body>
@@ -171,41 +186,43 @@
   <!-- SAFE CODES -->
   <section id="tab-codes" class="card" style="display:none">
     <h2>Family Safe Codes</h2>
-    <p class="sub">A secret word/phrase only your family knows. Use it to confirm identity before ever discussing money, help, or bail over the phone.</p>
+    <p class="sub">Create a secret code word for each part of your family. Anyone calling for money must say their code first. A clone can't.</p>
 
-    <div class="grid g2">
-      <div>
-        <label for="codeword">Your code word / phrase</label>
-        <input type="text" id="codeword" placeholder="e.g. BlueWhalePizza" autocomplete="off">
-        <div class="meter"><div id="strengthBar"></div></div>
-        <div class="muted" id="strengthLabel" style="font-size:12px;margin-top:6px">Enter a code word to see its strength.</div>
-        <div class="warnbox" id="strengthWarn" style="display:none;font-size:12.5px;margin-top:8px"></div>
+    <div style="background:var(--panel2);border-radius:12px;padding:16px;margin-bottom:20px">
+      <label for="passphrase">Master passphrase <span class="muted" style="text-transform:none;letter-spacing:0">(encrypts all codes on this device)</span></label>
+      <input type="password" id="passphrase" placeholder="e.g. two-words-you-remember-79" autocomplete="off">
+      <div class="muted" style="font-size:12px;margin-top:5px">Never stored. Lose it and codes can't be recovered.</div>
+    </div>
 
-        <label for="passphrase" style="margin-top:18px">Master passphrase <span class="muted" style="text-transform:none;letter-spacing:0">(encrypts the code word on this device)</span></label>
-        <input type="password" id="passphrase" placeholder="e.g. two-words-you-remember-79" autocomplete="off">
-        <div class="muted" style="font-size:12px;margin-top:5px">If set, your code word is stored <b>encrypted</b> (AES-GCM, PBKDF2). This passphrase is never stored anywhere — lose it and the code can't be recovered.</div>
-
-        <div class="btn-row">
-          <button class="primary" id="saveCode">Save Code</button>
-          <button class="ghost" id="genCode">Generate Random</button>
-          <button class="ghost" id="toggleShow">Show / Hide</button>
+    <div style="background:var(--panel2);border-radius:12px;padding:16px;margin-bottom:20px">
+      <h2 style="font-size:15px;margin-bottom:12px">&#10133; Add New Code</h2>
+      <div class="grid g2">
+        <div>
+          <label for="codeName">Name</label>
+          <input type="text" id="codeName" placeholder="e.g. Mom's Side" autocomplete="off">
+        </div>
+        <div>
+          <label for="codeword">Code word / phrase</label>
+          <input type="text" id="codeword" placeholder="e.g. BlueWhalePizza" autocomplete="off">
         </div>
       </div>
-      <div>
-        <label>Current saved code</label>
-        <div class="codebox" id="currentCode">—</div>
-        <div class="muted" style="font-size:12px">Stored only in this browser. No server, no cloud.</div>
-        <div id="rotationInfo" style="margin-top:12px"></div>
-        <div id="storageState" style="margin-top:12px"></div>
+      <div class="meter"><div id="strengthBar"></div></div>
+      <div class="muted" id="strengthLabel" style="font-size:12px;margin-top:6px">Enter a code word to see its strength.</div>
+      <div class="warnbox" id="strengthWarn" style="display:none;font-size:12.5px;margin-top:8px"></div>
+      <div class="btn-row">
+        <button class="primary" id="saveCode">Save Code</button>
+        <button class="ghost" id="genCode">Generate Random</button>
       </div>
     </div>
+
+    <div id="codesList"></div>
 
     <div class="warnbox">&#9888; <b>Security tips:</b>
       <ul style="margin:8px 0 0;padding-left:18px">
         <li>Don't use your pet's name, birthday, or anything on social media.</li>
         <li>Share it <b>in person</b> when possible, or via a separate verified channel.</li>
-        <li>If ANYONE over the phone refuses or can't say it — assume it's a clone, hang up, and call the real person back on a number <b>you</b> verified (look it up yourself, don't trust the caller's number).</li>
-        <li>Rotate the code at least every 6 months. This app reminds you automatically.</li>
+        <li>If ANYONE over the phone refuses or can't say it — assume it's a clone, hang up, and call the real person back on a number <b>you</b> verified.</li>
+        <li>Rotate codes at least every 6 months. This app reminds you automatically.</li>
       </ul>
     </div>
   </section>
@@ -230,6 +247,11 @@
   <section id="tab-cards" class="card" style="display:none">
     <h2>Printables &amp; Downloadables</h2>
     <p class="sub">Print these for elders, post near the home phone, or send to family. One click = print-ready.</p>
+
+    <div id="printablePicker" style="display:none;margin-bottom:16px">
+      <label for="printableCodeSelect">Which code to print?</label>
+      <select id="printableCodeSelect"></select>
+    </div>
 
     <div class="card" style="background:var(--panel2)">
       <h2 style="font-size:16px">&#128179; Wallet Card — "Grandparent's Golden Rule"</h2>
@@ -269,7 +291,7 @@
 <script>
 (function(){
   'use strict';
-  var LS_KEYS={ code:'vocalguard_code', meta:'vocalguard_code_meta' };
+  var LS_KEYS={ codes:'vocalguard_codes', meta:'vocalguard_codes_meta', code:'vocalguard_code', code_meta:'vocalguard_code_meta' };
   var enc = new TextEncoder();
   var dec = new TextDecoder();
 
@@ -280,6 +302,8 @@
       document.getElementById('tab-'+t).style.display=(t===name)?'':'none';
     });
     tabs.forEach(function(b){ b.classList.toggle('active', b.dataset.tab===name); });
+    if(name==='codes') refreshCodeUI();
+    if(name==='cards') refreshPrintablePicker();
   }
   tabs.forEach(function(b){ b.addEventListener('click',function(){ showTab(b.dataset.tab); }); });
 
@@ -293,6 +317,7 @@
   }
   function fmtDate(ts){ return new Date(ts).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}); }
   function monthsSince(ts){ return (Date.now()-ts)/ (1000*60*60*24*30.44); }
+  function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
 
   // ---------- integrity / tamper check ----------
   var expectedHash = (document.querySelector('meta[name="vocalguard-hash"]')||{}).content || '';
@@ -341,116 +366,222 @@
         );
       });
   }
-  function encryptCode(code,passphrase){
+  function encryptData(data,passphrase){
     var salt=crypto.getRandomValues(new Uint8Array(16));
     var iv=crypto.getRandomValues(new Uint8Array(12));
     var rounds=150000;
     return deriveKey(passphrase,salt,rounds).then(function(key){
-      return crypto.subtle.encrypt({name:'AES-GCM', iv:iv}, key, enc.encode('vg1:'+code));
+      return crypto.subtle.encrypt({name:'AES-GCM', iv:iv}, key, enc.encode('vg2:'+JSON.stringify(data)));
     }).then(function(ct){
-      return { ver:1, algo:'aes-256-gcm', kdf:'pbkdf2-sha256', rounds:rounds, salt:b64encode(salt), iv:b64encode(iv), ct:b64encode(new Uint8Array(ct)) };
+      return { ver:2, algo:'aes-256-gcm', kdf:'pbkdf2-sha256', rounds:rounds, salt:b64encode(salt), iv:b64encode(iv), ct:b64encode(new Uint8Array(ct)) };
     });
   }
-  function decryptCode(record,passphrase){
+  function decryptData(record,passphrase){
     var salt=b64decode(record.salt), iv=b64decode(record.iv);
     return deriveKey(passphrase,salt,record.rounds).then(function(key){
       return crypto.subtle.decrypt({name:'AES-GCM', iv:iv}, key, b64decode(record.ct));
     }).then(function(pt){
       var s=dec.decode(pt);
-      if(s.indexOf('vg1:')!==0){ throw new Error('bad data'); }
-      return s.slice(4);
+      if(s.indexOf('vg2:')===0) return JSON.parse(s.slice(4));
+      if(s.indexOf('vg1:')===0) return [{id:uid(),name:'My Family',code:s.slice(4),createdAt:Date.now(),rotatedAt:Date.now()}];
+      throw new Error('bad data');
     });
   }
-  function isEncrypted(){ var r=localStorage.getItem(LS_KEYS.code); return r && r.charAt(0)==='{'; }
 
   // ---------- code storage ----------
-  var currentCodeEl=document.getElementById('currentCode');
-  function loadCode(show){
-    show = show===undefined ? (document.getElementById('toggleShow').dataset.on==='1') : show;
-    if(isEncrypted()){
-      currentCodeEl.innerHTML = '&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;';
-      var pw=document.getElementById('passphrase').value;
-      if(pw && show && window.__vgPlain){
-        currentCodeEl.textContent=window.__vgPlain;
-      }
-      else if(pw){
-        tryDecrypt(pw,show);
+  var allCodes=[];
+  var revealed={};
+  var lastEncryptedBlob='';
+
+  function loadCodes(){
+    var raw=localStorage.getItem(LS_KEYS.codes);
+    if(raw && raw.charAt(0)==='['){
+      try{ allCodes=JSON.parse(raw); }catch(e){ allCodes=[]; }
+      lastEncryptedBlob='';
+      return;
+    }
+    if(raw && raw.charAt(0)==='{'){
+      if(raw===lastEncryptedBlob && allCodes.length>0) return;
+      lastEncryptedBlob=raw;
+      var pw=getPassphrase();
+      if(pw){
+        tryDecryptAll(pw).then(function(codes){
+          allCodes=codes;
+          revealed={};
+          allCodes.forEach(function(c){ revealed[c.id]=true; });
+          renderCodesList();
+          var st=document.getElementById('storageChip');
+          st.className='chip ok';
+          st.innerHTML='&#128274; Unlocked with passphrase';
+        }).catch(function(){
+          allCodes=[];
+          renderCodesList();
+          var st=document.getElementById('storageChip');
+          st.className='chip bad';
+          st.innerHTML='&#9888; Wrong passphrase';
+        });
+      } else {
+        allCodes=[];
       }
       return;
     }
-    var c=localStorage.getItem(LS_KEYS.code);
-    currentCodeEl.textContent = (c && show) ? c : (c ? '••••••' : '—');
+    allCodes=[];
+    lastEncryptedBlob='';
   }
-  function tryDecrypt(pw,show){
-    var stored=localStorage.getItem(LS_KEYS.code);
-    var rec=null; try{ rec=JSON.parse(stored); }catch(e){ return; }
-    decryptCode(rec,pw).then(function(plain){
-      window.__vgPlain=plain;
-      if(show) currentCodeEl.textContent=plain;
-      var st=document.getElementById('storageState');
-      st.innerHTML='<span class="badge ok">&#128274; Code unlocked with passphrase</span>';
-    }).catch(function(){
-      var st=document.getElementById('storageState');
-      st.innerHTML='<span class="badge no">&#9888; Wrong passphrase — check and try again.</span>';
+  function saveCodes(){
+    localStorage.setItem(LS_KEYS.codes, JSON.stringify(allCodes));
+  }
+  function migrateOldCode(){
+    if(allCodes.length>0) return;
+    if(localStorage.getItem(LS_KEYS.codes)) return;
+    var old=localStorage.getItem(LS_KEYS.code);
+    if(!old) return;
+    if(old.charAt(0)==='{') return;
+    allCodes=[{id:uid(),name:'My Family',code:old,createdAt:Date.now(),rotatedAt:Date.now()}];
+    saveCodes();
+    localStorage.removeItem(LS_KEYS.code);
+    var m=localStorage.getItem(LS_KEYS.code_meta);
+    if(m){ localStorage.removeItem(LS_KEYS.code_meta); }
+  }
+
+  function isEncrypted(){
+    var r=localStorage.getItem(LS_KEYS.codes);
+    return r && r.charAt(0)==='{';
+  }
+  function getPassphrase(){ return document.getElementById('passphrase').value; }
+
+  function tryDecryptAll(pw){
+    var stored=localStorage.getItem(LS_KEYS.codes);
+    if(!stored) return Promise.resolve([]);
+    var rec=null; try{ rec=JSON.parse(stored); }catch(e){ return Promise.reject('bad'); }
+    if(!rec.ver) return Promise.reject('bad');
+    return decryptData(rec,pw);
+  }
+
+  function encryptAndSave(codes,pw){
+    return encryptData(codes,pw).then(function(rec){
+      localStorage.setItem(LS_KEYS.codes, JSON.stringify(rec));
     });
   }
-  function renderStorageState(){
-    var el=document.getElementById('storageState');
-    var html='';
-    if(isEncrypted()){
-      html='<span class="badge ok">&#128274; Stored encrypted (AES-256-GCM)</span>';
-    } else if(localStorage.getItem(LS_KEYS.code)){
-      html='<span class="badge warn">&#9888; Stored as plain text — add a passphrase and re-save to encrypt.</span>';
-    } else {
-      html='<span class="muted">No code word saved yet.</span>';
+
+  // ---------- code UI ----------
+  var codesListEl=document.getElementById('codesList');
+  var strengthBarEl=document.getElementById('strengthBar');
+  var strengthLabelEl=document.getElementById('strengthLabel');
+  var strengthWarnEl=document.getElementById('strengthWarn');
+
+  function renderCodesList(){
+    codesListEl.innerHTML='';
+    if(allCodes.length===0){
+      codesListEl.innerHTML='<div class="empty-state"><div class="icon">&#128274;</div>No codes yet. Add your first family code above.</div>';
+      return;
     }
-    el.innerHTML=html;
+    var list=document.createElement('div');
+    list.className='codes-list';
+    allCodes.forEach(function(c){
+      var card=document.createElement('div');
+      card.className='code-card';
+      var isRevealed=revealed[c.id];
+
+      var header=document.createElement('div');
+      header.className='code-card-header';
+      var name=document.createElement('div');
+      name.className='code-card-name';
+      name.textContent=c.name;
+      var actions=document.createElement('div');
+      actions.className='code-card-actions';
+
+      var revealBtn=document.createElement('button');
+      revealBtn.textContent=isRevealed?'Hide':'Reveal';
+      revealBtn.addEventListener('click',function(){
+        if(isRevealed){ delete revealed[c.id]; } else { revealed[c.id]=true; }
+        renderCodesList();
+      });
+      actions.appendChild(revealBtn);
+
+      var copyBtn=document.createElement('button');
+      copyBtn.textContent='Copy';
+      copyBtn.addEventListener('click',function(){
+        navigator.clipboard.writeText(c.code).then(function(){
+          copyBtn.textContent='Copied!';
+          setTimeout(function(){ copyBtn.textContent='Copy'; },1500);
+        });
+      });
+      actions.appendChild(copyBtn);
+
+      var delBtn=document.createElement('button');
+      delBtn.textContent='Delete';
+      delBtn.className='danger';
+      delBtn.addEventListener('click',function(){
+        if(!confirm('Delete "'+c.name+'"? This cannot be undone.')) return;
+        allCodes=allCodes.filter(function(x){ return x.id!==c.id; });
+        delete revealed[c.id];
+        saveCodes();
+        renderCodesList();
+      });
+      actions.appendChild(delBtn);
+
+      header.appendChild(name);
+      header.appendChild(actions);
+      card.appendChild(header);
+
+      var val=document.createElement('div');
+      val.className='code-card-value';
+      val.textContent=isRevealed?c.code:'••••••••••';
+      card.appendChild(val);
+
+      var meta=document.createElement('div');
+      meta.className='code-card-meta';
+      meta.textContent='Created '+fmtDate(c.createdAt);
+      if(c.rotatedAt && c.rotatedAt!==c.createdAt) meta.textContent+=' · Last rotated '+fmtDate(c.rotatedAt);
+      card.appendChild(meta);
+
+      var rotDiv=document.createElement('div');
+      rotDiv.className='code-card-rotation';
+      var ms=monthsSince(c.rotatedAt||c.createdAt);
+      if(ms>=6) rotDiv.innerHTML='<div class="dangerbox">&#9888; Set '+fmtDate(c.rotatedAt||c.createdAt)+' — <b>time to rotate!</b></div>';
+      else if(ms>=4) rotDiv.innerHTML='<div class="warnbox">&#9201;&#65039; Set '+fmtDate(c.rotatedAt||c.createdAt)+' — consider rotating soon.</div>';
+      if(rotDiv.innerHTML) card.appendChild(rotDiv);
+
+      list.appendChild(card);
+    });
+    codesListEl.appendChild(list);
   }
-  function renderRotation(){
-    var el=document.getElementById('rotationInfo');
-    var m=localStorage.getItem(LS_KEYS.meta);
-    if(!m){ el.innerHTML=''; return; }
-    try{ m=JSON.parse(m); }catch(e){ el.innerHTML=''; return; }
-    var t=m.rotatedAt||m.createdAt; if(!t){ el.innerHTML=''; return; }
-    var ms=monthsSince(t);
-    if(ms>=6){ el.innerHTML='<div class="dangerbox">&#9888; Code was last set <b>'+fmtDate(t)+'</b> ('+Math.floor(ms)+' months ago). <b>Time to rotate it!</b></div>'; }
-    else if(ms>=4){ el.innerHTML='<div class="warnbox">&#9201;&#65039; Code set '+fmtDate(t)+' — consider rotating soon (&gt;6 months overdue).</div>'; }
-    else { el.innerHTML='<div class="muted" style="font-size:12.5px">&#128197; Code last set '+fmtDate(t)+' — rotate it every 6 months.</div>'; }
-  }
+
   function refreshCodeUI(){
-    var show=(document.getElementById('toggleShow').dataset.on==='1');
-    loadCode(show);
-    renderStorageState();
-    renderRotation();
+    loadCodes();
+    migrateOldCode();
+    renderCodesList();
   }
 
-  document.getElementById('toggleShow').addEventListener('click',function(){
-    var el=this;
-    el.dataset.on=(el.dataset.on==='1')?'0':'1';
-    loadCode(el.dataset.on==='1');
-    refreshCodeUI();
-  });
-  document.getElementById('passphrase').addEventListener('input',function(){ window.__vgPlain=null; refreshCodeUI(); });
-
+  // ---------- save code ----------
   document.getElementById('saveCode').addEventListener('click',function(){
-    var v=document.getElementById('codeword').value.trim();
-    if(!v){ alert('Enter or generate a code word first.'); return; }
-    var pw=document.getElementById('passphrase').value;
-    var meta=JSON.stringify({ createdAt:Date.now(), rotatedAt:Date.now() });
-    function finish(save){
-      localStorage.setItem(LS_KEYS.code, save);
-      localStorage.setItem(LS_KEYS.meta, meta);
-      refreshCodeUI();
-      alert(pw ? 'Saved & encrypted.' : 'Saved. Sharing tip: tell family in person — trust the code word, not the voice.');
+    var name=document.getElementById('codeName').value.trim();
+    var code=document.getElementById('codeword').value.trim();
+    if(!name){ alert('Give this code a name (e.g. "Mom\'s Side").'); return; }
+    if(!code){ alert('Enter or generate a code word first.'); return; }
+    var pw=getPassphrase();
+    var existing=allCodes.filter(function(c){ return c.name.toLowerCase()===name.toLowerCase(); });
+    if(existing.length>0){
+      if(!confirm('A code named "'+name+'" already exists. Replace it?')) return;
+      allCodes=allCodes.filter(function(c){ return c.name.toLowerCase()!==name.toLowerCase(); });
+    }
+    var newCode={id:uid(),name:name,code:code,createdAt:Date.now(),rotatedAt:Date.now()};
+    allCodes.push(newCode);
+    function finish(){
+      document.getElementById('codeName').value='';
+      document.getElementById('codeword').value='';
+      strengthBarEl.style.width='0%';
+      strengthLabelEl.textContent='Enter a code word to see its strength.';
+      strengthWarnEl.style.display='none';
+      renderCodesList();
+      alert(pw?'Saved & encrypted.':'Saved.');
     }
     if(pw){
-      encryptCode(v,pw).then(function(rec){
-        finish(JSON.stringify(rec));
-        window.__vgPlain=v;
-        document.getElementById('passphrase').value=pw;
-      });
+      encryptAndSave(allCodes,pw).then(finish);
     } else {
-      finish(v);
+      saveCodes();
+      finish();
     }
   });
 
@@ -471,12 +602,12 @@
   function strengthScore(v){
     if(!v) return 0;
     var s=1;
-    s+=Math.min(2, v.length/5);                 // length
-    if(/[a-z]/.test(v)&&/[A-Z]/.test(v)) s+=1;   // case mix
-    if(/[0-9]/.test(v)) s+=1;                    // digit
-    if(/[^A-Za-z0-9]/.test(v)) s+=1;             // symbol
+    s+=Math.min(2, v.length/5);
+    if(/[a-z]/.test(v)&&/[A-Z]/.test(v)) s+=1;
+    if(/[0-9]/.test(v)) s+=1;
+    if(/[^A-Za-z0-9]/.test(v)) s+=1;
     if(v.length>=12) s+=1;
-    if(/([a-zA-Z])\1\1/.test(v)) s-=2;           // repeats
+    if(/([a-zA-Z])\1\1/.test(v)) s-=2;
     if(COMMON.test(v)) s-=3;
     if(PERSONAL.test(v)) s-=1;
     var setSize=95, ent=Math.log2(Math.pow(setSize,v.length));
@@ -486,18 +617,106 @@
   function updateStrength(){
     var v=document.getElementById('codeword').value;
     var score=strengthScore(v);
-    if(!v){ document.getElementById('strengthBar').style.width='0%'; document.getElementById('strengthBar').style.background='#2c3352'; document.getElementById('strengthLabel').textContent='Enter a code word to see its strength.'; document.getElementById('strengthWarn').style.display='none'; return; }
+    if(!v){ strengthBarEl.style.width='0%'; strengthBarEl.style.background='#2c3352'; strengthLabelEl.textContent='Enter a code word to see its strength.'; strengthWarnEl.style.display='none'; return; }
     var pct=score*10;
     var color= score>=8?'#35e0a1' : score>=5?'#ffc24f' : '#ff5c72';
     var word= score>=8?'Very strong' : score>=6?'Strong' : score>=4?'Okay' : 'Weak';
-    document.getElementById('strengthBar').style.width=pct+'%';
-    document.getElementById('strengthBar').style.background=color;
-    document.getElementById('strengthLabel').textContent=word+' · score '+score+'/10'+(score>=8?' — great, hard to guess.':score>=4?' — usable, but consider longer/random.':' — a scammer or family member might guess it.');
-    var w=document.getElementById('strengthWarn');
-    if(COMMON.test(v)&&v.length<10){ w.style.display=''; w.textContent='&#9888; Contains a common, easily-guessable word. Mix in random words + numbers + symbols.'; }
-    else{ w.style.display='none'; }
+    strengthBarEl.style.width=pct+'%';
+    strengthBarEl.style.background=color;
+    strengthLabelEl.textContent=word+' · score '+score+'/10'+(score>=8?' — great, hard to guess.':score>=4?' — usable, but consider longer/random.':' — a scammer or family member might guess it.');
+    if(COMMON.test(v)&&v.length<10){ strengthWarnEl.style.display=''; strengthWarnEl.textContent='\u26A0\uFE0F Contains a common, easily-guessable word. Mix in random words + numbers + symbols.'; }
+    else{ strengthWarnEl.style.display='none'; }
   }
   document.getElementById('codeword').addEventListener('input',updateStrength);
+
+  // ---------- printable picker ----------
+  function refreshPrintablePicker(){
+    loadCodes();
+    var picker=document.getElementById('printablePicker');
+    var select=document.getElementById('printableCodeSelect');
+    select.innerHTML='';
+    if(allCodes.length===0){ picker.style.display='none'; return; }
+    picker.style.display='';
+    allCodes.forEach(function(c,i){
+      var opt=document.createElement('option');
+      opt.value=i;
+      opt.textContent=c.name+': '+(revealed[c.id]?c.code:'\u2022\u2022\u2022\u2022\u2022\u2022');
+      select.appendChild(opt);
+    });
+  }
+  function getDisplayCode(){
+    var sel=document.getElementById('printableCodeSelect');
+    var idx=sel?parseInt(sel.value,10):0;
+    if(allCodes[idx]){
+      if(revealed[allCodes[idx].id]) return allCodes[idx].code;
+      return allCodes[idx].code;
+    }
+    return '(your family code word)';
+  }
+  function getDisplayName(){
+    var sel=document.getElementById('printableCodeSelect');
+    var idx=sel?parseInt(sel.value,10):0;
+    return allCodes[idx]?allCodes[idx].name:'Family';
+  }
+  function openPrint(html){
+    var p=document.getElementById('printArea');
+    p.innerHTML=html;
+    window.print();
+  }
+
+  document.getElementById('printWalletCard').addEventListener('click',function(){
+    var code=getDisplayCode();
+    var name=getDisplayName();
+    openPrint('<div style="font-family:sans-serif;max-width:420px;margin:0;padding:24px;border:2px solid #000;border-radius:12px">'+
+      '<div style="font-size:20px;font-weight:800">Golden Rule \uD83D\uDCB0</div>'+
+      '<div style="font-size:12px;color:#555;margin:2px 0 12px">VocalGuard family card \u2014 '+name+'</div>'+
+      '<div style="font-size:14px;line-height:1.6">'+
+      '<b>If someone calls asking for money or help:</b><br>'+
+      '\u2713 First ask for our FAMILY CODE WORD.<br>'+
+      '\u2713 Our code word is: <b style="font-size:18px">'+code+'</b><br>'+
+      '\u2717 No code word \u2192 NO money, ever.<br>'+
+      '\u2713 Never act fast. Hang up &amp; verify on a number you look up yourself.<br>'+
+      '\u26A0\uFE0F Voice &amp; phone numbers can be faked. Only the code word proves identity.</div>'+
+      '<div style="font-size:10px;color:#888;margin-top:12px">VocalGuard \u2014 free &amp; offline. Print this, cut it out, keep it safe.</div>'+
+      '</div>');
+  });
+
+  document.getElementById('printPoster').addEventListener('click',function(){
+    var code=getDisplayCode();
+    var name=getDisplayName();
+    openPrint('<div style="font-family:sans-serif;padding:26px;border:2px solid #000;border-radius:12px">'+
+      '<div style="font-size:26px;font-weight:900;margin-bottom:6px">\uD83D\uDCDE PHONE RINGS = REMEMBER THIS</div>'+
+      '<div style="font-size:14px;margin-bottom:16px">Government agencies, banks, police, and family will NEVER demand urgent money by gift card, wire, or crypto. Scammers clone voices &amp; spoof numbers.</div>'+
+      '<table style="width:100%;border-collapse:collapse;font-size:16px">'+
+      '<tr><td style="padding:12px;border:1px solid #000;width:40px"><b>1</b></td><td style="padding:12px;border:1px solid #000"><b>Do not panic.</b> Urgency &amp; pressure = scam.</td></tr>'+
+      '<tr><td style="padding:12px;border:1px solid #000"><b>2</b></td><td style="padding:12px;border:1px solid #000"><b>Ask for our family code word first.</b> ('+name+') It is: <b style="font-size:20px">'+code+'</b></td></tr>'+
+      '<tr><td style="padding:12px;border:1px solid #000"><b>3</b></td><td style="padding:12px;border:1px solid #000"><b>No code word = hang up.</b> Tell them "No code, no money."</td></tr>'+
+      '<tr><td style="padding:12px;border:1px solid #000"><b>4</b></td><td style="padding:12px;border:1px solid #000"><b>Verify yourself</b> \u2014 call the real person/number you look up. Confirm before any money.</td></tr>'+
+      '</table>'+
+      '<div style="font-size:12px;color:#555;margin-top:14px">Never pay by gift card, wire transfer, or cryptocurrency for an "emergency." When in doubt, hang up and tell a trusted family member.</div>'+
+      '</div>');
+  });
+
+  document.getElementById('printPlan').addEventListener('click',function(){
+    var code=getDisplayCode();
+    var name=getDisplayName();
+    var codeList=allCodes.map(function(c){ return '<b>'+c.name+':</b> '+c.code; }).join(' &nbsp;\u2022&nbsp; ');
+    if(!codeList) codeList='<b style="border-bottom:1px dotted #000">'+code+'</b>';
+    openPrint('<div style="font-family:sans-serif;padding:26px;border:2px solid #000;border-radius:12px">'+
+      '<div style="font-size:24px;font-weight:900">Family Safety Plan \uD83D\uDCC5</div>'+
+      '<div style="font-size:13px;color:#555;margin:2px 0 14px">Walk through this together and tick each box.</div>'+
+      '<div style="font-size:15px;line-height:2">'+
+      '\u2610 Chose and shared family code words: '+codeList+'<br>'+
+      '\u2610 Agreed: no code word \u2192 no money, no matter what.<br>'+
+      '\u2610 Everyone passed the VocalGuard Detection Quiz.<br>'+
+      '\u2610 Elders have a printed wallet card AND a poster by the phone.<br>'+
+      '\u2610 Agreed to never act fast \u2014 always verify on our own.<br>'+
+      '\u2610 Agreed: never pay for "emergencies" by gift card, wire, or crypto.<br>'+
+      '\u2610 Set a reminder to rotate code words every 6 months.<br>'+
+      '\u2610 Know how to report scams: local police + national fraud line.<br>'+
+      '</div>'+
+      '<div style="font-size:12px;color:#555;margin-top:12px">Signed by the family on: ____________</div></div>');
+  });
 
   // ---------- quiz ----------
   var quiz=[
@@ -508,7 +727,7 @@
     {q:'AI can clone a realistic version of your voice from how much real audio?',
      opts:['About an hour of recordings','A few seconds','At least a day','It\'s not possible without professional equipment'],
      correct:1,
-     why:'Modern AI can clone a convincing voice from just a few seconds — news clips, voicemails, social videos are enough.'},
+     why:'Modern AI can clone a convincing voice from just a few seconds \u2014 news clips, voicemails, social videos are enough.'},
     {q:'A caller claims your grandchild is hurt and needs money "right now" but says they can\'t talk. What should you do?',
      opts:['Act fast to avoid harm','Hang up and verify by calling the real person on a number YOU look up','Ask to transfer to the hospital yourself','Pay in installments'],
      correct:1,
@@ -522,13 +741,13 @@
      correct:2,
      why:'Pets, birthdays, addresses, and family names are all on social media or in public records. A made-up random phrase nobody can guess or find is best.'},
     {q:'Someone asks for money "for an emergency" but can\'t give your code word. What\'s the one safe response?',
-     opts:['Help them, they\'re panicking','Say "sorry, family rule — no code, no money" and hang up, then verify','Ask for more proof later','Give a smaller amount'],
+     opts:['Help them, they\'re panicking','Say "sorry, family rule \u2014 no code, no money" and hang up, then verify','Ask for more proof later','Give a smaller amount'],
      correct:1,
      why:'Stick to the rule without exception. A real relative will understand (you\'re protecting them). A scammer will get frustrated and move on.'},
     {q:'Your family code word was accidentally mentioned in a group chat. What should you do?',
      opts:['Keep using it, it\'s been fine so far','Rotate to a fresh code word immediately','Only use it after dark','Post it publicly so scammers leave you alone'],
      correct:1,
-     why:'Once a code word leaks, it is worthless — maybe even dangerous (scammers could now use it to fool YOU). Rotate to a new one and re-share privately.'},
+     why:'Once a code word leaks, it is worthless \u2014 maybe even dangerous (scammers could now use it to fool YOU). Rotate to a new one and re-share privately.'},
     {q:'A "bank" calls asking you to confirm your identity for a "security check". What do you use?',
      opts:['Your bank PIN','Your family code word','Actually, call your bank back on the number on your card to verify','Whatever they ask for'],
      correct:2,
@@ -536,7 +755,7 @@
     {q:'The scammer says the "police" are on the line and your grandchild will be arrested if you don\'t pay. What\'s true?',
      opts:['Police take bail over the phone','Police never demand bail, gift cards, or crypto by phone','It\'s fine if the "officer" has a badge number','You should pay to be safe'],
      correct:1,
-     why:'Law enforcement and courts never call demanding immediate payment by gift card or crypto. Any badge number you\'re given is fake and checkable — hang up and call law enforcement via the official number.'},
+     why:'Law enforcement and courts never call demanding immediate payment by gift card or crypto. Any badge number you\'re given is fake and checkable \u2014 hang up and call law enforcement via the official number.'},
     {q:'What is the single best way to verify a family member over the phone?',
      opts:['The voice sounds exactly right','The caller ID matches','Your private family code word','They know what you had for breakfast'],
      correct:2,
@@ -590,7 +809,7 @@
     if(pct===100) msg='&#127942; Perfect score! Your family is clone-proof.';
     else if(pct>=75) msg='&#128077; Great job! Review the ones you missed and you\'ll be rock solid.';
     else if(pct>=50) msg='&#129300; You\'re on your way, but a scammer on a \'trouble\' call will try to rush you. Re-read the warnings and try again.';
-    else msg='&#9888; Good thing you practiced! Read the tips carefully and retry — remember: no code word, no money, ever.';
+    else msg='&#9888; Good thing you practiced! Read the tips carefully and retry \u2014 remember: no code word, no money, ever.';
     quizResult.innerHTML='You answered <b>'+score+' of '+quiz.length+'</b> correctly ('+pct+'%).<br><br>'+msg;
     quizResult.style.display='block';
     quizRetry.style.display='';
@@ -602,23 +821,23 @@
   var scenarios=[
     {title:'The grandchild in trouble',
      chat:[ {who:'caller','text':'Grandma? It\'s me, Tyler. I got arrested, I\'m so scared, I need $3,000 for bail right now. Don\'t tell Mom and Dad, they\'ll kill me.'},
-            {who:'you','text':'Tyler? ... you sound a bit off. Quick — what\'s our family word?'} ],
-     tip:'Even a real Tyler would happily say the code. A clone has no idea. If they hesitate, make excuses, or hang up and try again — hang up and call Tyler on a number YOU look up.'},
+            {who:'you','text':'Tyler? ... you sound a bit off. Quick \u2014 what\'s our family word?'} ],
+     tip:'Even a real Tyler would happily say the code. A clone has no idea. If they hesitate, make excuses, or hang up and try again \u2014 hang up and call Tyler on a number YOU look up.'},
     {title:'The emergency wire',
-     chat:[ {who:'caller','text':'Dad it\'s Sarah. I\'m in the hospital abroad. It\'s urgent — can you wire money to this account? I\'ll pay you back, please hurry.'},
+     chat:[ {who:'caller','text':'Dad it\'s Sarah. I\'m in the hospital abroad. It\'s urgent \u2014 can you wire money to this account? I\'ll pay you back, please hurry.'},
             {who:'you','text':'Sarah, do you remember our code phrase? I need to hear it before anything else.'} ],
      tip:'Real Sarah knows the phrase instantly. No phrase = stop the conversation, hang up, verify through your own trusted channel (a number you find, not one they give).'},
     {title:'The "don\'t tell anyone" tactic',
-     chat:[ {who:'caller','text':'This is a private matter. Please don\'t tell anyone in the family about this — it will embarrass everyone. Just send the gift cards and we\'ll move on.'} ],
+     chat:[ {who:'caller','text':'This is a private matter. Please don\'t tell anyone in the family about this \u2014 it will embarrass everyone. Just send the gift cards and we\'ll move on.'} ],
      tip:'Any request to keep it secret, act fast, or use gift cards/crypto is a bright red flag. Legitimate loved ones don\'t demand secrecy about emergencies.'},
     {title:'The "office of the sheriff" callback',
      chat:[ {who:'caller','text':'This is Deputy Miller from the County Sheriff\'s office. Your grandson caused a crash. We need settlement money now or there\'s a warrant.'} ],
      tip:'Real deputies don\'t demand crypto/gift cards for bail. Get their name + agency, hang up, call the agency yourself using their published (non-caller-ID) number, and confirm.'},
     {title:'The "text first, call after" setup',
-     chat:[ {who:'caller','text':'Mom, it\'s Jake. I changed my number — save this one. I\'m in trouble, call me right back, don\'t call my old number, it\'s broken.'} ],
+     chat:[ {who:'caller','text':'Mom, it\'s Jake. I changed my number \u2014 save this one. I\'m in trouble, call me right back, don\'t call my old number, it\'s broken.'} ],
      tip:'Scammers "move" you to a new unreachable number so you can\'t verify. Don\'t use the new number. Look up Jake\'s old / known number yourself and call it.'},
     {title:'The tech-support "voucher"',
-     chat:[ {who:'caller','text':'This is Microsoft support — your computer has a virus right now. Tell me your banking details and we\'ll fix it with a voucher before it\'s too late.'} ],
+     chat:[ {who:'caller','text':'This is Microsoft support \u2014 your computer has a virus right now. Tell me your banking details and we\'ll fix it with a voucher before it\'s too late.'} ],
      tip:'Legitimate companies never call out of the blue to "fix" things and never ask for banking details, one-time codes, or gift cards. Hang up, don\'t call back the number shown, and update your own security on their official site.'}
   ];
   var scContainer=document.getElementById('scenarioContainer');
@@ -637,67 +856,37 @@
     scContainer.appendChild(card);
   });
 
-  // ---------- printables ----------
-  function getDisplayCode(){
-    // prefer decrypted plain if we have it, else stored value; never show encrypted blob
-    if(window.__vgPlain) return window.__vgPlain;
-    var raw=localStorage.getItem(LS_KEYS.code);
-    if(raw && raw.charAt(0) !== '{') return raw;
-    return '(your family code word)';
-  }
-  function openPrint(html){
-    var p=document.getElementById('printArea');
-    p.innerHTML=html;
-    window.print();
-  }
-
-  document.getElementById('printWalletCard').addEventListener('click',function(){
-    openPrint('<div style="font-family:sans-serif;max-width:420px;margin:0;padding:24px;border:2px solid #000;border-radius:12px">'+
-      '<div style="font-size:20px;font-weight:800">Golden Rule &#128179;</div>'+
-      '<div style="font-size:12px;color:#555;margin:2px 0 12px">VocalGuard family card</div>'+
-      '<div style="font-size:14px;line-height:1.6">'+
-      '<b>If someone calls asking for money or help:</b><br>'+
-      '&#10003; First ask for our FAMILY CODE WORD.<br>'+
-      '&#10003; Our code word is: <b style="font-size:18px">'+getDisplayCode()+'</b><br>'+
-      '&#10007; No code word &#8594; NO money, ever.<br>'+
-      '&#10003; Never act fast. Hang up &amp; verify on a number you look up yourself.<br>'+
-      '&#9888; Voice &amp; phone numbers can be faked. Only the code word proves identity.</div>'+
-      '<div style="font-size:10px;color:#888;margin-top:12px">VocalGuard — free &amp; offline. Print this, cut it out, keep it safe.</div>'+
-      '</div>');
-  });
-
-  document.getElementById('printPoster').addEventListener('click',function(){
-    openPrint('<div style="font-family:sans-serif;padding:26px;border:2px solid #000;border-radius:12px">'+
-      '<div style="font-size:26px;font-weight:900;margin-bottom:6px">&#128222; PHONE RINGS = REMEMBER THIS</div>'+
-      '<div style="font-size:14px;margin-bottom:16px">Government agencies, banks, police, and family will NEVER demand urgent money by gift card, wire, or crypto. Scammers clone voices &amp; spoof numbers.</div>'+
-      '<table style="width:100%;border-collapse:collapse;font-size:16px">'+
-      '<tr><td style="padding:12px;border:1px solid #000;width:40px"><b>1</b></td><td style="padding:12px;border:1px solid #000"><b>Do not panic.</b> Urgency &amp; pressure = scam.</td></tr>'+
-      '<tr><td style="padding:12px;border:1px solid #000"><b>2</b></td><td style="padding:12px;border:1px solid #000"><b>Ask for our family code word first.</b> It is: <b style="font-size:20px">'+getDisplayCode()+'</b></td></tr>'+
-      '<tr><td style="padding:12px;border:1px solid #000"><b>3</b></td><td style="padding:12px;border:1px solid #000"><b>No code word = hang up.</b> Tell them "No code, no money."</td></tr>'+
-      '<tr><td style="padding:12px;border:1px solid #000"><b>4</b></td><td style="padding:12px;border:1px solid #000"><b>Verify yourself</b> — call the real person/number you look up. Confirm before any money.</td></tr>'+
-      '</table>'+
-      '<div style="font-size:12px;color:#555;margin-top:14px">Never pay by gift card, wire transfer, or cryptocurrency for an "emergency." When in doubt, hang up and tell a trusted family member.</div>'+
-      '</div>');
-  });
-
-  document.getElementById('printPlan').addEventListener('click',function(){
-    openPrint('<div style="font-family:sans-serif;padding:26px;border:2px solid #000;border-radius:12px">'+
-      '<div style="font-size:24px;font-weight:900">Family Safety Plan &#128197;</div>'+
-      '<div style="font-size:13px;color:#555;margin:2px 0 14px">Walk through this together and tick each box.</div>'+
-      '<div style="font-size:15px;line-height:2">'+
-      '&#9744; Chose and shared a family code word: <b style="border-bottom:1px dotted #000">'+getDisplayCode()+'</b><br>'+
-      '&#9744; Agreed: no code word &#8594; no money, no matter what.<br>'+
-      '&#9744; Everyone passed the VocalGuard Detection Quiz.<br>'+
-      '&#9744; Elders have a printed wallet card AND a poster by the phone.<br>'+
-      '&#9744; Agreed to never act fast — always verify on our own.<br>'+
-      '&#9744; Agreed: never pay for "emergencies" by gift card, wire, or crypto.<br>'+
-      '&#9744; Set a reminder to rotate the code word every 6 months.<br>'+
-      '&#9744; Know how to report scams: local police + national fraud line.<br>'+
-      '</div>'+
-      '<div style="font-size:12px;color:#555;margin-top:12px">Signed by the family on: ____________</div></div>');
+  // ---------- passphrase listener ----------
+  document.getElementById('passphrase').addEventListener('input',function(){
+    var pw=getPassphrase();
+    if(isEncrypted() && pw){
+      tryDecryptAll(pw).then(function(codes){
+        allCodes=codes;
+        revealed={};
+        allCodes.forEach(function(c){ revealed[c.id]=true; });
+        renderCodesList();
+        var st=document.getElementById('storageChip');
+        st.className='chip ok';
+        st.innerHTML='&#128274; Unlocked with passphrase';
+      }).catch(function(){
+        var st=document.getElementById('storageChip');
+        st.className='chip bad';
+        st.innerHTML='&#9888; Wrong passphrase';
+        revealed={};
+        renderCodesList();
+      });
+    } else if(isEncrypted()){
+      revealed={};
+      renderCodesList();
+      var st=document.getElementById('storageChip');
+      st.className='chip ok';
+      st.innerHTML='&#128274; Code storage: encrypted';
+    }
   });
 
   // ---------- init ----------
+  loadCodes();
+  migrateOldCode();
   refreshCodeUI();
   updateStrength();
   runTamperCheck();

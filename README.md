@@ -26,7 +26,7 @@ A **family safe code word** that only your family knows defeats any audio clone,
 
 | Feature | What it does |
 |---------|--------------|
-| 🗝️ **Family Safe Codes** | Create or auto-generate a secret code word, saved privately in your browser. |
+| 🗝️ **Family Safe Codes** | Create multiple **named** code words for each branch of your family (e.g. "Mom's Side", "Dad's Side"). Auto-generate, reveal, copy, or delete each one. |
 | 🔐 **Encrypted storage** | Set a master passphrase and your code word is stored **AES-256-GCM encrypted** (key derived with PBKDF2-SHA256, 150k rounds). No plaintext, no leak of the passphrase. |
 | 🛡️ **Tamper check** | On load, the app verifies its own SHA-256 against the hash embedded at build time — it warns you if a copy has been modified (e.g., a tampered "official" download). |
 | 📏 **Code strength meter** | Live strength score (length, variety, entropy) plus warnings for common or guessable words. |
@@ -60,7 +60,7 @@ A **family safe code word** that only your family knows defeats any audio clone,
 
 ## 🔐 Security notes
 
-- **Code word storage:** plain "save" keeps the code in `localStorage` (fine for casual use). Enter a **master passphrase** and the code is stored encrypted (AES-256-GCM) — the passphrase itself is **never** stored, so keep it somewhere safe. You'll need it to unlock the code after a browser/device restart.
+- **Code word storage:** plain "save" keeps all codes in `localStorage` (fine for casual use). Enter a **master passphrase** and your codes are stored encrypted together (AES-256-GCM) — the passphrase itself is **never** stored, so keep it somewhere safe. You'll need it to unlock your codes after a browser/device restart.
 - **Why encryption matters:** `localStorage` is readable by anyone with access to the device or its backup files. Encryption blurs the code so a leaked backup doesn't reveal your family's secret.
 - **Tamper check:** the app computes its own hash against the one embedded at build time and shows a chip in the header:
   - **"verified authentic"** — this copy is byte-for-byte the official one.

@@ -1,6 +1,6 @@
 {
   "name": "vocalguard",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Offline family toolkit against AI voice-clone & deepfake phone scams",
   "main": "index.html",
   "scripts": {

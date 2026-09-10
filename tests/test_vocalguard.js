@@ -13,6 +13,7 @@ function makeDom() {
     beforeParse(window){ try { Object.defineProperty(window,'TextEncoder',{value:TE,configurable:true}); Object.defineProperty(window,'TextDecoder',{value:TD,configurable:true}); } catch(e){} 
       try { Object.defineProperty(window, 'crypto', { value: webcrypto, configurable: true }); }
       catch(e){ try { window.crypto = webcrypto; } catch(e2){} }
+      window.alert = () => {};
     }
   });
   return dom;
@@ -35,23 +36,31 @@ const sleepy = (ms) => new Promise(r => setTimeout(r, ms));
   console.log('✓ tabs switch');
 
   // 2. Generator
+  clickTab('codes');
   el('genCode').click();
   const gen = el('codeword').value;
   if (!gen || gen.length < 8 || !/[0-9]/.test(gen)) throw new Error('bad generated code: '+gen);
   console.log('✓ generates random code:', gen);
 
-  // 3. Savings without passphrase (plain path)
+  // 3. Save without passphrase (plain path)
+  el('codeName').value = 'Test Family';
   el('codeword').value = 'BlueHarborPizza66';
   el('saveCode').click();
-  if (window.localStorage.getItem('vocalguard_code') !== 'BlueHarborPizza66') throw new Error('plain not saved');
-  if (el('storageState').textContent.includes('plain text') === false) throw new Error('plain-text warning not shown');
-  console.log('✓ plain save + warning shown');
+  const storedPlain = window.localStorage.getItem('vocalguard_codes');
+  if (!storedPlain || storedPlain.charAt(0) !== '[') throw new Error('plain not saved as array');
+  const parsed = JSON.parse(storedPlain);
+  if (!parsed.length || parsed[0].code !== 'BlueHarborPizza66') throw new Error('plain code not in array');
+  if (parsed[0].name !== 'Test Family') throw new Error('code name not saved');
+  console.log('✓ plain save works');
 
-  // 4. TOGGLE SHOW then masked reveal
-  el('toggleShow').click();
-  let shown = el('currentCode').textContent;
-  if (shown !== 'BlueHarborPizza66' && shown !== 'BlueHarborPizza66') throw new Error('show toggle failed: '+shown);
-  console.log('✓ show/hide toggle works ->', shown);
+  // 4. Reveal button on code card
+  clickTab('home'); clickTab('codes');
+  const revealBtns = d.querySelectorAll('.code-card-actions button');
+  if (revealBtns.length < 1) throw new Error('no code cards rendered');
+  revealBtns[0].click(); // first button is reveal
+  const codeVal = d.querySelector('.code-card-value');
+  if (!codeVal || !codeVal.textContent.includes('BlueHarborPizza66')) throw new Error('reveal failed');
+  console.log('✓ reveal button shows code');
 
   // 5. Strength meter
   el('codeword').value = 'a';
@@ -66,22 +75,25 @@ const sleepy = (ms) => new Promise(r => setTimeout(r, ms));
   console.log('✓ strength meter distinguishes weak/strong/common');
 
   // 6. Encrypted save
-  el('toggleShow').click();               // back to masked default
+  el('codeName').value = 'Encrypted Family';
   el('codeword').value = 'EagleFern73';
   el('passphrase').value = 'correct horse battery staple';
   el('saveCode').click();
-  await sleepy(120);                      // let encrypt promise resolve
-  const stored = window.localStorage.getItem('vocalguard_code');
+  await sleepy(200);
+  const stored = window.localStorage.getItem('vocalguard_codes');
   if (!stored || stored.charAt(0) !== '{') throw new Error('not encrypted');
   if (String(stored).includes('EagleFern73')) throw new Error('plaintext leaked into storage!');
   if (String(stored).includes('correct horse battery staple')) throw new Error('passphrase leaked into storage!');
-  if (el('currentCode').textContent.includes('EagleFern73')) throw new Error('encrypted code should be masked');
-  if (!el('storageState').textContent.includes('encrypted')) throw new Error('encrypted badge missing');
   console.log('✓ encrypted save: no plaintext in storage');
 
-  // 7. Rotation info rendered
-  if (!el('rotationInfo').innerHTML.includes('last set')) throw new Error('rotation info missing');
-  console.log('✓ rotation reminder rendered');
+  // 7. Code cards rendered
+  clickTab('home'); clickTab('codes');
+  await sleepy(400);
+  const cards = d.querySelectorAll('.code-card');
+  if (cards.length < 1) throw new Error('no code cards rendered');
+  const cardNames = Array.from(d.querySelectorAll('.code-card-name')).map(el => el.textContent);
+  if (!cardNames.includes('Encrypted Family')) throw new Error('encrypted family card not found');
+  console.log('✓ code cards rendered with names');
 
   // 8. Expanded quiz (10) and scenarios (6)
   if (d.querySelectorAll('#quizContainer .quiz-opts button').length !== 4) throw new Error('quiz options wrong');
@@ -93,6 +105,11 @@ const sleepy = (ms) => new Promise(r => setTimeout(r, ms));
   let printed = '';
   window.print = () => { printed = el('printArea').innerHTML; };
   el('passphrase').value = 'correct horse battery staple';
+  clickTab('cards');
+  await sleepy(500);
+  // select the second code (Encrypted Family / EagleFern73)
+  const picker = el('printableCodeSelect');
+  if (picker.options.length > 1) picker.value = '1';
   for (const id of ['printWalletCard','printPoster','printPlan']) {
     printed = '';
     el(id).click();
